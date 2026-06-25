@@ -1,36 +1,37 @@
 const EmpresaModel = require('../models/EmpresaModel');
 
-class EmpresaController {
-    async criarEmpresa(req, res) {
-        try {
-            const { nome, razao_social, cnpj } = req.body;
-
-            if (!nome || !razao_social || !cnpj) {
-                return res.status(400).json({ 
-                    erro: "Dados incompletos. Os campos 'nome', 'razao_social' e 'cnpj' são obrigatórios." 
-                });
-            }
-
-            const empresaExistente = await EmpresaModel.buscarPorCnpj(cnpj);
-
-            if (empresaExistente) {
-                return res.status(409).json({ 
-                    erro: "Conflito: Já existe uma conta corporativa cadastrada com este CNPJ." 
-                });
-            }
-
-            const novaEmpresa = await EmpresaModel.criar({ nome, razao_social, cnpj });
-
-            return res.status(201).json({
-                mensagem: "Conta corporativa criada com sucesso!",
-                empresa: novaEmpresa
-            });
-
-        } catch (erro) {
-            console.error("Erro no EmpresaController:", erro);
-            return res.status(500).json({ erro: "Erro interno no servidor ao criar a empresa." });
-        }
+const listarEmpresas = async (req, res) => {
+    try {
+        const empresas = await EmpresaModel.listarTodas();
+        res.status(200).json(empresas);
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro interno no servidor ao buscar empresas" });
     }
-}
+};
 
-module.exports = new EmpresaController();
+const criarEmpresa = async (req, res) => {
+    try {
+        const novaEmpresa = await EmpresaModel.criar(req.body);
+        res.status(201).json(novaEmpresa);
+    } catch (erro) {
+        if (erro.message === "CNPJ_JA_EXISTENTE") {
+            return res.status(409).json({ mensagem: "Este CNPJ já está registrado em nossa base." });
+        }
+        res.status(500).json({ mensagem: "Erro ao cadastrar empresa." });
+    }
+};
+const buscarMeuPerfil = async (req, res) => {
+    try {
+        const empresa_id = req.usuarioLogado.empresa_id;
+        const empresa = await EmpresaModel.buscarPorId(empresa_id);
+
+        if (!empresa) {
+            return res.status(404).json({ mensagem: "Empresa não encontrada." });
+        }
+
+        res.status(200).json(empresa);
+    } catch (erro) {
+        res.status(500).json({ mensagem: "Erro ao buscar dados da empresa." });
+    }
+};
+module.exports = { listarEmpresas, criarEmpresa, buscarMeuPerfil };

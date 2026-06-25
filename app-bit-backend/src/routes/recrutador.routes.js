@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const RecrutadorController = require('../controllers/RecrutadorController');
 
-router.post('/', RecrutadorController.criarRecrutador);
-router.get('/', RecrutadorController.listarRecrutadores);
-router.get('/:id', RecrutadorController.buscarRecrutador);
+const { listarTodos, buscarPorId, criar } = require('../controllers/RecrutadorController');
+const { login } = require('../controllers/AuthController'); 
+
+router.post('/login', login); 
+
+router.get('/', listarTodos);
+router.get('/:id', buscarPorId);
+router.post('/', criar); 
+
 module.exports = router;
