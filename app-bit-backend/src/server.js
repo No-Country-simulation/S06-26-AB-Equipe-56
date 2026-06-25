@@ -10,9 +10,12 @@ app.use(express.json());
 
 const empresaRoutes = require('./routes/empresa.routes');
 const recrutadorRoutes = require('./routes/recrutador.routes');
+const conviteRoutes = require('./routes/convite.routes');
+const vagaRoutes = require('./routes/vaga.routes');
 app.use('/api/recrutadores', recrutadorRoutes);
 app.use('/api/empresas', empresaRoutes);
-
+app.use('/api/convites', conviteRoutes);
+app.use('/api/vagas', vagaRoutes);
 app.get('/', (req, res) => {
     res.json({ message: 'API do App BiT rodando com sucesso!' });
 });
