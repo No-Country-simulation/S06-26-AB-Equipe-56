@@ -1,16 +1,14 @@
-import { CheckCircle2, Clock3 } from 'lucide-react'
+import { Clock3 } from 'lucide-react'
 import type { Trilha } from '../../data/mockTrilhas'
 
 type TrilhaCardProps = {
   trilha: Trilha
+  onSelect?: (trilha: Trilha) => void
 }
 
-export function TrilhaCard({ trilha }: TrilhaCardProps) {
-  const concluido = trilha.modulos.filter((modulo) => modulo.concluido).length
-  const progresso = Math.round((concluido / trilha.modulos.length) * 100)
-
+export function TrilhaCard({ trilha, onSelect }: TrilhaCardProps) {
   return (
-    <article className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
+    <article className="flex h-full flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-[var(--color-primary)]">{trilha.categoria}</p>
@@ -31,20 +29,21 @@ export function TrilhaCard({ trilha }: TrilhaCardProps) {
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-[var(--color-muted)]">Progresso</span>
-          <span className="font-semibold text-[var(--color-text)]">{progresso}%</span>
+          <span className="font-semibold text-[var(--color-text)]">{trilha.progresso}%</span>
         </div>
         <div className="h-2 rounded-full bg-slate-200">
-          <div className="h-2 rounded-full bg-[var(--color-primary)]" style={{ width: `${progresso}%` }} />
+          <div className="h-2 rounded-full bg-[var(--color-primary)]" style={{ width: `${trilha.progresso}%` }} />
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-[var(--color-muted)]">
-          <CheckCircle2 size={16} />
-          <span>{concluido}/{trilha.modulos.length} módulos</span>
-        </div>
-        <button className="rounded-full bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white">
-          Iniciar Trilha
+      <div className="mt-6 flex flex-1 items-end justify-between gap-3">
+        <span className="text-sm text-[var(--color-muted)]">{trilha.modulos.length} módulos</span>
+        <button
+          type="button"
+          onClick={() => onSelect?.(trilha)}
+          className="w-36 rounded-full bg-indigo-500 px-4 py-3 text-sm font-medium text-white transition active:scale-95"
+        >
+          <p className="mb-0.5">Iniciar Trilha</p>
         </button>
       </div>
     </article>
