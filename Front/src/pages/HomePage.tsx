@@ -16,7 +16,7 @@ export function HomePage() {
 
   return (
     <PageShell currentPath="/">
-      <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm md:p-8">
+      <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-card)] md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">
@@ -30,7 +30,7 @@ export function HomePage() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-[var(--color-border)] bg-[color:rgba(26,61,255,0.06)] p-4">
+          <div className="rounded-[8px] border border-[var(--color-border)] bg-[color:rgba(79,70,229,0.06)] p-4">
             <p className="text-sm font-medium text-[var(--color-muted)]">Progresso geral</p>
             <p className="mt-1 text-3xl font-bold text-[var(--color-primary)]">{progressoGeral}%</p>
             <p className="mt-1 text-sm text-[var(--color-muted)]">

@@ -10,8 +10,10 @@ export type Modulo = {
   titulo: string
   tipo: 'video' | 'artigo'
   url_conteudo: string
+  conteudo_texto?: string
   concluido: boolean
   questionario: Questionario[]
+  
 }
 
 export type Trilha = {
@@ -40,7 +42,7 @@ export const trilhasMock: Trilha[] = [
         ordem: 1,
         titulo: 'O que são Vieses Inconscientes?',
         tipo: 'video',
-        url_conteudo: 'https://youtube.com/embed/exemplo1',
+        url_conteudo: 'https://www.youtube.com/embed/IE01HiODNW0',
         concluido: true,
         questionario: [
           {
@@ -65,7 +67,36 @@ export const trilhasMock: Trilha[] = [
         ordem: 2,
         titulo: 'Como blindar a triagem de currículos',
         tipo: 'artigo',
-        url_conteudo: 'text_mock_markdown_content',
+        conteudo_texto: `
+# Como blindar a triagem de currículos
+
+A triagem de currículos é uma das etapas mais sensíveis do processo seletivo.  
+É nesse momento que vieses inconscientes podem influenciar decisões e comprometer a diversidade e a inclusão dentro das organizações. Blindar essa fase significa criar mecanismos que garantam justiça, objetividade e transparência.
+
+## 1. Defina critérios claros e objetivos
+Antes de iniciar a triagem, estabeleça requisitos técnicos e comportamentais que sejam mensuráveis.  
+Isso evita que percepções subjetivas tenham peso maior do que competências reais.
+
+## 2. Utilize ferramentas de anonimização
+Remover informações como nome, idade, gênero ou endereço ajuda a reduzir vieses relacionados à identidade.  
+O foco passa a ser exclusivamente nas habilidades e experiências.
+
+## 3. Padronize a avaliação
+Crie formulários estruturados ou checklists para todos os currículos.  
+Assim, cada candidato é avaliado com base nos mesmos parâmetros, sem espaço para interpretações pessoais.
+
+## 4. Capacite recrutadores
+Treinamentos sobre diversidade e vieses inconscientes são fundamentais.  
+Quanto mais consciente a equipe estiver, menor será a chance de decisões enviesadas.
+
+## 5. Monitore indicadores de diversidade
+Acompanhar métricas de inclusão permite identificar gargalos e ajustar processos continuamente.  
+Transparência nos resultados fortalece a credibilidade da empresa.
+
+---
+
+> Blindar a triagem de currículos não é apenas uma prática de RH, mas um compromisso com a equidade e a construção de ambientes de trabalho mais diversos e inovadores.
+`,
         concluido: false,
         questionario: [
           {
@@ -84,6 +115,7 @@ export const trilhasMock: Trilha[] = [
             resposta_correta: 0,
           },
         ],
+        url_conteudo: ""
       },
     ],
   },
@@ -101,7 +133,7 @@ export const trilhasMock: Trilha[] = [
         ordem: 1,
         titulo: 'Práticas de inclusão diária',
         tipo: 'video',
-        url_conteudo: 'https://youtube.com/embed/exemplo2',
+        url_conteudo: "https://www.youtube.com/embed/E6HJVwywccQ?si=P58Eo38Evi4lWyN-",
         concluido: false,
         questionario: [
           {

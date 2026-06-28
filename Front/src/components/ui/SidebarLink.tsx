@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react'
+
 type SidebarLinkProps = {
   name: string
   path: string
-  icon: React.ReactNode
+  icon: ReactNode
   active?: boolean
 }
 
@@ -9,13 +11,13 @@ export function SidebarLink({ name, path, icon, active = false }: SidebarLinkPro
   return (
     <a
       href={path}
-      className={`flex items-center gap-3 px-4 py-3 ${
+      className={`flex items-center gap-3 rounded-[6px] px-3 py-3 text-sm font-medium transition ${
         active
-          ? 'border-r-[6px] border-[var(--color-primary)] bg-[color:rgba(26,61,255,0.10)] text-[var(--color-primary)]'
-          : 'border-white text-[var(--color-text)] hover:bg-[color:rgba(26,61,255,0.08)]'
+          ? 'bg-[color:rgba(79,70,229,0.10)] text-[var(--color-primary)]'
+          : 'text-[var(--color-muted)] hover:bg-[color:rgba(79,70,229,0.06)] hover:text-[var(--color-text)]'
       }`}
     >
-      {icon}
+      <span className={active ? 'text-[var(--color-primary)]' : 'text-[var(--color-muted)]'}>{icon}</span>
       <p className="hidden text-center md:block">{name}</p>
     </a>
   )

@@ -9,13 +9,13 @@ type PageShellProps = {
 
 export function PageShell({ currentPath, children }: PageShellProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-100">
+    <div className="flex min-h-screen flex-col bg-[var(--color-bg)]">
       <Topbar />
 
       <div className="flex flex-1 flex-row overflow-hidden">
         <Sidebar currentPath={currentPath} />
 
-        <main className="min-w-0 flex-1 overflow-x-auto p-4 md:p-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-auto bg-[var(--color-bg)] p-4 md:p-8">{children}</main>
       </div>
     </div>
   )
