@@ -21,6 +21,11 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "msnodesqlv8": "^5.2.0",
-    "mssql": "^12.6.0"
+    "mssql": "^12.6.0",
+    "zod": "^4.4.3"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true,
+    "msnodesqlv8@5.2.0": true
   }
 }
