@@ -21,8 +21,8 @@ const buscarPorId = async (req, res) => {
 
 const criar = async (req, res) => {
     try {
-        const { nome, email, senha, empresa_id } = req.body;
-        const novo = await RecrutadorModel.criar({ nome, email, senha, empresa_id });
+        const { nome, email, senha, empresa_id, permissao_id } = req.body;
+        const novo = await RecrutadorModel.criar({ nome, email, senha, empresa_id, permissao_id });
         
         res.status(201).json(novo);
     } catch (err) {

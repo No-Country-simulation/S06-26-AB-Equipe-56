@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-primary: #5B3EA6;
+  --color-primary-strong: #3D2480;
+  --color-secondary: #0B9484;
+  --color-accent: #C44D30;
+  --color-bg: #FAF8F6;
+  --color-surface: #FFFFFF;
+  --color-text: #2C2520;
+  --color-muted: #5C534C;
+  --color-border: #E0D8D2;
+  --radius-card: 14px;
+  --shadow-card: 0 1px 3px rgba(24, 18, 14, 0.06), 0 8px 32px rgba(24, 18, 14, 0.08);
+  --font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-primary: #9F86EC;
+  --color-primary-strong: #BCA8FF;
+  --color-secondary: #0D9488;
+  --color-accent: #E05A3E;
+  --color-bg: #0F0A1E;
+  --color-surface: #17112C;
+  --color-text: #FAF8F6;
+  --color-muted: #8E86AB;
+  --color-border: #251B45;
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.35), 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text font-body antialiased overflow-x-hidden transition-colors duration-200;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+/* Custom Scrollbar for modern SaaS feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 9999px;
+  border: 2px solid var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Premium gradients and card hover effects matching the landing page */
+.premium-card-gradient::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary-strong) 0%, var(--color-accent) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-card-gradient:hover::after {
+  transform: scaleX(1);
+}
+
+/* Sidebar Nav Active states (subtle border color in light and dark themes) */
+.active-nav-primary {
+  background-color: rgba(91, 62, 166, 0.08) !important;
+  border-color: rgba(91, 62, 166, 0.15) !important;
+}
+:root[data-theme='dark'] .active-nav-primary {
+  background-color: rgba(159, 134, 236, 0.08) !important;
+  border-color: rgba(159, 134, 236, 0.15) !important;
+}
+
+.active-nav-secondary {
+  background-color: rgba(11, 148, 132, 0.08) !important;
+  border-color: rgba(11, 148, 132, 0.15) !important;
+}
+:root[data-theme='dark'] .active-nav-secondary {
+  background-color: rgba(13, 148, 136, 0.08) !important;
+  border-color: rgba(13, 148, 136, 0.15) !important;
+}
+
+.active-nav-accent {
+  background-color: rgba(196, 77, 48, 0.08) !important;
+  border-color: rgba(196, 77, 48, 0.15) !important;
+}
+:root[data-theme='dark'] .active-nav-accent {
+  background-color: rgba(224, 90, 62, 0.08) !important;
+  border-color: rgba(224, 90, 62, 0.15) !important;
+}
+
+/* Custom Badge/Tag borders & backgrounds (fixes Tailwind variable-opacity bug) */
+.badge-primary {
+  background-color: rgba(91, 62, 166, 0.08);
+  border: 1px solid rgba(91, 62, 166, 0.15) !important;
+  color: var(--color-primary);
+}
+:root[data-theme='dark'] .badge-primary {
+  background-color: rgba(159, 134, 236, 0.08);
+  border: 1px solid rgba(159, 134, 236, 0.15) !important;
+}
+
+.badge-secondary {
+  background-color: rgba(11, 148, 132, 0.08);
+  border: 1px solid rgba(11, 148, 132, 0.15) !important;
+  color: var(--color-secondary);
+}
+:root[data-theme='dark'] .badge-secondary {
+  background-color: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.15) !important;
+}
+
+.badge-accent {
+  background-color: rgba(196, 77, 48, 0.08);
+  border: 1px solid rgba(196, 77, 48, 0.15) !important;
+  color: var(--color-accent);
+}
+:root[data-theme='dark'] .badge-accent {
+  background-color: rgba(224, 90, 62, 0.08);
+  border: 1px solid rgba(224, 90, 62, 0.15) !important;
+}
+
+/* Dashboard Card Icon classes to fix Tailwind hex variable opacity bugs */
+.dashboard-icon-neutral {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+.group:hover .dashboard-icon-neutral {
+  border-color: rgba(91, 62, 166, 0.2);
+  color: var(--color-primary);
+}
+:root[data-theme='dark'] .group:hover .dashboard-icon-neutral {
+  border-color: rgba(159, 134, 236, 0.2);
+}
+
+.dashboard-icon-primary {
+  background-color: rgba(91, 62, 166, 0.08);
+  border: 1px solid rgba(91, 62, 166, 0.15);
+  color: var(--color-primary);
+}
+:root[data-theme='dark'] .dashboard-icon-primary {
+  background-color: rgba(159, 134, 236, 0.08);
+  border: 1px solid rgba(159, 134, 236, 0.15);
+}
+.group:hover .dashboard-icon-primary {
+  border-color: rgba(91, 62, 166, 0.3);
+}
+:root[data-theme='dark'] .group:hover .dashboard-icon-primary {
+  border-color: rgba(159, 134, 236, 0.3);
+}
+
