@@ -5,7 +5,7 @@ class RecrutadorModel {
     
     static async listarTodos() {
         const pool = await conectarBanco();
-        const resultado = await pool.request().query('SELECT recrutador_id, nome, email, empresa_id FROM Recrutadores');
+        const resultado = await pool.request().query('SELECT recrutador_id, nome, email, empresa_id, permissao_id FROM Recrutadores');
         return resultado.recordset;
     }
 
@@ -13,7 +13,7 @@ class RecrutadorModel {
         const pool = await conectarBanco(); 
         const resultado = await pool.request()
             .input('id', sql.Int, id)
-            .query('SELECT recrutador_id, nome, email, empresa_id FROM Recrutadores WHERE recrutador_id = @id');
+            .query('SELECT recrutador_id, nome, email, empresa_id, permissao_id FROM Recrutadores WHERE recrutador_id = @id');
         return resultado.recordset[0];
     }
 
