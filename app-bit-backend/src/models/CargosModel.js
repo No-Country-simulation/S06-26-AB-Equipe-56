@@ -1,21 +1,3 @@
-/*
-const CargosModel = require('../models/CargosModel');
-
-class CargosController {
-    static async criarCargo(req, res) {
-        try {
-            const dados = req.body;
-            // Aqui você usa a classe que foi importada pelo require
-            const novoCargo = await CargosModel.criar(dados); 
-            
-            res.status(201).json(novoCargo);
-        } catch (erro) {
-            res.status(500).json({ erro: "Falha ao criar o cargo" });
-        }
-    }
-}
-
-module.exports = CargosController;*/
 const { conectarBanco, sql } = require('../config/db');
 
 class CargosModel {

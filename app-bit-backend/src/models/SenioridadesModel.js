@@ -1,20 +1,3 @@
-/*// Importa o model subindo uma pasta (../) e entrando na pasta models
-const SenioridadesModel = require('../models/SenioridadesModel');
-
-class SenioridadesController {
-    static async listarSenioridades(req, res) {
-        try {
-            // Usa o model importado para ir à base de dados
-            const senioridades = await SenioridadesModel.listarTodos();
-            res.status(200).json(senioridades);
-        } catch (erro) {
-            res.status(500).json({ erro: "Erro ao procurar as senioridades" });
-        }
-    }
-}
-
-module.exports = SenioridadesController;
-*/
 const { conectarBanco, sql } = require('../config/db');
 
 class SenioridadesModel {

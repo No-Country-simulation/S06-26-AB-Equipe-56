@@ -7,7 +7,9 @@ const app = express();
 app.use(cors());
 app.use(express.json()); 
 
-
+const cargosRoutes = require('./routes/cargos.routes');
+const senioridadesRoutes = require('./routes/senioridades.routes');
+const escolaridadeRoutes = require('./routes/escolaridade.routes');
 const empresaRoutes = require('./routes/empresa.routes');
 const recrutadorRoutes = require('./routes/recrutador.routes');
 app.use('/api/recrutadores', recrutadorRoutes);
@@ -21,4 +23,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor rodando na porta ${PORT}`);
+
 });

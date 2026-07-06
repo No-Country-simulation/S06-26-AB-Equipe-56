@@ -1,9 +1,3 @@
-/*// No topo do arquivo do servidor MCP:
-const EscolaridadeModel = require('../models/EscolaridadeModel');
-
-// Dentro do handler 'criar_escolaridade':
-const novoRegistro = await EscolaridadeModel.criar(dados);*/
-
 const { conectarBanco, sql } = require('../config/db');
 
 class EscolaridadeModel {
