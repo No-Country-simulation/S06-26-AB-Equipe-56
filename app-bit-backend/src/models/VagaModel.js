@@ -50,7 +50,7 @@ class VagaModel {
         }
     }
 
-    static async buscarPorId(vaga_id, empresa_id) {
+    static async buscarVagaPorId(vaga_id, empresa_id) {
         try {
             const pool = await conectarBanco();
             const resultado = await pool.request()
@@ -58,19 +58,22 @@ class VagaModel {
                 .input('empresa_id', sql.Int, empresa_id)
                 .query(`
                     SELECT 
-                        v.*,
-                        c.nome AS cargo, 
-                        s.nome AS senioridade, 
-                        m.nome AS modalidade
-                    FROM Vagas v
-                    LEFT JOIN Cargos c ON v.cargo_id = c.cargo_id
-                    LEFT JOIN Senioridades s ON v.senioridade_id = s.senioridade_id
-                    LEFT JOIN Modalidades m ON v.modalidade_id = m.modalidade_id
-                    WHERE v.vaga_id = @vaga_id AND v.empresa_id = @empresa_id
+                        vaga_id,
+                        recrutador_id,
+                        empresa_id,
+                        vaga_titulo AS titulo,
+                        vaga_descricao AS descricao,
+                        vaga_data_cadastro AS data_cadastro,
+                        cargo_nome AS cargo,
+                        senioridade_nome AS senioridade,
+                        modalidade_nome AS modalidade,
+                        requisitos_skills
+                    FROM vw_detalhes_vaga
+                    WHERE vaga_id = @vaga_id AND empresa_id = @empresa_id
                 `);
             return resultado.recordset[0];
         } catch (erro) {
-            console.error("Erro ao buscar vaga por ID:", erro);
+            console.error("Erro ao buscar vaga por ID na view vw_detalhes_vaga:", erro);
             throw erro;
         }
     }

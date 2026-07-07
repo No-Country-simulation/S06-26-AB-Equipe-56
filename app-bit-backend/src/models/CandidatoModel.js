@@ -45,7 +45,7 @@ class CandidatoModel {
             const pool = await conectarBanco();
             const result = await pool.request()
                 .input('candidato_id', sql.Int, candidato_id)
-                .query('SELECT * FROM Candidatos WHERE candidato_id = @candidato_id;');
+                .query('SELECT * FROM vw_perfil_completo_candidato WHERE candidato_id = @candidato_id;');
             return result.recordset[0];
         } catch (error) {
             console.error('Erro ao buscar perfil completo para score:', error);
