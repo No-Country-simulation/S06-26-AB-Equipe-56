@@ -1,15 +1,14 @@
-const { conectarBanco, sql } = require('../config/db_postgre');
+const { conectarBanco } = require('../config/db_postgre');
 
 class CandidatoModel {
     static async criar(dados) {
         try {
             const pool = await conectarBanco();
-            const result = await pool.request().input('nome', sql.VarChar, dados.nome).input('email', sql.VarChar, dados.email)
-            .input('senha', sql.VarChar, dados.senha)
-            .input('telefone', sql.VarChar, dados.telefone)
-            .input('cpf', sql.VarChar, dados.cpf)
-            .query('INSERT INTO Candidatos (nome, email, senha, telefone, cpf) VALUES (@nome, @email, @senha, @telefone, @cpf);');
-            return result;
+            const { rows } = await pool.query(
+                'INSERT INTO Candidatos (nome, email, senha, telefone, cpf) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
+                [dados.nome, dados.email, dados.senha, dados.telefone, dados.cpf]
+            );
+            return rows[0];
         } catch (error) {
             console.error('Erro ao criar candidato:', error);
             throw error;
@@ -19,10 +18,11 @@ class CandidatoModel {
     static async buscarPorId(candidato_id) {
         try {
             const pool = await conectarBanco();
-            const result = await pool.request()
-                .input('candidato_id', sql.Int, candidato_id)
-                .query('SELECT * FROM Candidatos WHERE candidato_id = @candidato_id;');
-            return result.recordset[0];
+            const { rows } = await pool.query(
+                'SELECT * FROM Candidatos WHERE candidato_id = $1;',
+                [candidato_id]
+            );
+            return rows[0];
         } catch (error) {
             console.error('Erro ao buscar candidato por ID:', error);
             throw error;
@@ -32,8 +32,8 @@ class CandidatoModel {
     static async listarTodos() {
         try {
             const pool = await conectarBanco();
-            const result = await pool.request().query('SELECT * FROM Candidatos;');
-            return result.recordset;
+            const { rows } = await pool.query('SELECT * FROM Candidatos;');
+            return rows;
         } catch (error) {
             console.error('Erro ao listar candidatos:', error);
             throw error;
@@ -43,10 +43,11 @@ class CandidatoModel {
     static async buscar_perfil_completo_para_score(candidato_id) {
         try {
             const pool = await conectarBanco();
-            const result = await pool.request()
-                .input('candidato_id', sql.Int, candidato_id)
-                .query('SELECT * FROM Candidatos WHERE candidato_id = @candidato_id;');
-            return result.recordset[0];
+            const { rows } = await pool.query(
+                'SELECT * FROM Candidatos WHERE candidato_id = $1;',
+                [candidato_id]
+            );
+            return rows[0];
         } catch (error) {
             console.error('Erro ao buscar perfil completo para score:', error);
             throw error;
