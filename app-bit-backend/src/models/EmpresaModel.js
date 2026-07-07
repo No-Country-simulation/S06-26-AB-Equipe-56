@@ -55,4 +55,27 @@ class EmpresaModel {
     }
 }
 
+    static async buscarMetasPorEmpresa(empresa_id) {
+        try {
+            const pool = await conectarBanco();
+            const resultado = await pool.request()
+                .input('empresa_id', sql.Int, empresa_id)
+                .query(`
+                    SELECT 
+                        empresa_id,
+                        empresa_nome,
+                        empresa_razao_social,
+                        empresa_cnpj,
+                        metas_esg_ativas
+                    FROM vw_metas_empresa
+                    WHERE empresa_id = @empresa_id
+                `);
+
+            return resultado.recordset[0];
+        } catch (erro) {
+            console.error("Erro ao buscar metas da empresa na view vw_metas_empresa:", erro);
+            throw erro;
+        }
+    }
+}
 module.exports = EmpresaModel;

@@ -43,6 +43,7 @@ class CandidatoModel {
     static async buscar_perfil_completo_para_score(candidato_id) {
         try {
             const pool = await conectarBanco();
+
             const { rows } = await pool.query(
                 'SELECT * FROM Candidatos WHERE candidato_id = $1;',
                 [candidato_id]
