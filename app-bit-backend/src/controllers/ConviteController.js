@@ -20,6 +20,7 @@ const gerarConvite = async (req, res) => {
             link_acesso: linkParaTestes
         });
     } catch (erro) {
+        console.error("Erro ao gerar convite:", erro);
         res.status(500).json({ mensagem: "Erro interno ao gerar o convite." });
     }
 };

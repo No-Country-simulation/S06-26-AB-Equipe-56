@@ -1,21 +1,18 @@
-const { conectarBanco, sql } = require('../config/db');
+const { conectarBanco } = require('../config/db_postgre');
 
 class ConviteModel {
     static async criar(dados) {
         try {
             const pool = await conectarBanco();
             
-            const resultado = await pool.request()
-                .input('empresa_id', sql.Int, dados.empresa_id)
-                .input('email_convidado', sql.VarChar(255), dados.email)
-                .input('permissao_id', sql.Int, dados.permissao_id) 
-                .query(`
-                    INSERT INTO Convites (empresa_id, email_convidado, permissao_id, data_expiracao)
-                    OUTPUT INSERTED.token, INSERTED.email_convidado, INSERTED.empresa_id, INSERTED.permissao_id
-                    VALUES (@empresa_id, @email_convidado, @permissao_id, DATEADD(hour, 24, GETDATE()))
-                `);
+            const { rows } = await pool.query(
+                `INSERT INTO Convites (empresa_id, email_convidado, permissao_id, status, data_expiracao)
+                 VALUES ($1, $2, $3, 'Pendente', NOW() + INTERVAL '24 hours')
+                 RETURNING token, email_convidado, empresa_id, status, permissao_id`,
+                [dados.empresa_id, dados.email, dados.permissao_id]
+            );
 
-            return resultado.recordset[0];
+            return rows[0];
         } catch (erro) {
             console.error("Erro ao criar convite no banco:", erro);
             throw erro;
@@ -25,11 +22,12 @@ class ConviteModel {
     static async validarToken(token) {
         try {
             const pool = await conectarBanco();
-            const resultado = await pool.request()
-                .input('token', sql.UniqueIdentifier, token)
-                .query("SELECT * FROM Convites WHERE token = @token AND status = 'Pendente' AND data_expiracao > GETDATE()");
+            const { rows } = await pool.query(
+                "SELECT * FROM Convites WHERE token = $1 AND status = 'Pendente' AND data_expiracao > NOW()",
+                [token]
+            );
             
-            return resultado.recordset[0]; 
+            return rows[0]; 
         } catch (erro) {
             console.error("Erro ao validar o token no banco:", erro);
             throw erro;
@@ -39,9 +37,10 @@ class ConviteModel {
     static async marcarComoAceito(token) {
         try {
             const pool = await conectarBanco();
-            await pool.request()
-                .input('token', sql.UniqueIdentifier, token)
-                .query("UPDATE Convites SET status = 'Aceito' WHERE token = @token");
+            await pool.query(
+                "UPDATE Convites SET status = 'Aceito' WHERE token = $1",
+                [token]
+            );
         } catch (erro) {
             console.error("Erro ao atualizar status do convite:", erro);
             throw erro;
@@ -50,22 +49,21 @@ class ConviteModel {
     static async listarPorEmpresa(empresa_id) {
         try {
             const pool = await conectarBanco();
-            const resultado = await pool.request()
-                .input('empresa_id', sql.Int, empresa_id)
-                .query(`
-                    SELECT 
-                        convite_id, 
-                        email_convidado, 
-                        permissao_id, 
-                        status, 
-                        data_criacao, 
-                        data_expiracao
-                    FROM Convites 
-                    WHERE empresa_id = @empresa_id
-                    ORDER BY data_criacao DESC
-                `);
+            const { rows } = await pool.query(
+                `SELECT 
+                    convite_id, 
+                    email_convidado, 
+                    permissao_id, 
+                    status, 
+                    data_criacao, 
+                    data_expiracao
+                 FROM Convites 
+                 WHERE empresa_id = $1
+                 ORDER BY data_criacao DESC`,
+                [empresa_id]
+            );
             
-            return resultado.recordset;
+            return rows;
         } catch (erro) {
             console.error("Erro ao listar convites no banco:", erro);
             throw erro;

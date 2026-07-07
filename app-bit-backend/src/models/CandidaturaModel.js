@@ -12,6 +12,24 @@ class CandidaturaModel {
         }
     }
 
+    static async listarPorEmpresa(empresa_id) {
+        try {
+            const pool = await conectarBanco();
+            const { rows } = await pool.query(
+                `SELECT c.* 
+                 FROM Candidatura c
+                 JOIN Vagas v ON c.vaga_id = v.vaga_id
+                 WHERE v.empresa_id = $1
+                 ORDER BY c.data_candidatura DESC`,
+                [empresa_id]
+            );
+            return rows;
+        } catch (erro) {
+            console.error('Erro ao listar candidaturas por empresa:', erro);
+            throw erro;
+        }
+    }
+
     static async buscarPorId(candidatura_id) {
         try {
             const pool = await conectarBanco();
@@ -46,6 +64,37 @@ class CandidaturaModel {
             return rows[0];
         } catch (erro) {
             console.error('Erro ao criar candidatura:', erro);
+            throw erro;
+        }
+    }
+
+    static async buscarPorVagaECurriculo(vaga_id, curriculo_id) {
+        try {
+            const pool = await conectarBanco();
+            const { rows } = await pool.query(
+                'SELECT * FROM Candidatura WHERE vaga_id = $1 AND curriculo_id = $2',
+                [vaga_id, curriculo_id]
+            );
+            return rows[0];
+        } catch (erro) {
+            console.error('Erro ao buscar candidatura por vaga e currículo:', erro);
+            throw erro;
+        }
+    }
+
+    static async atualizarStatus(candidatura_id, status) {
+        try {
+            const pool = await conectarBanco();
+            const { rows } = await pool.query(
+                `UPDATE Candidatura 
+                 SET status = $2 
+                 WHERE candidatura_id = $1 
+                 RETURNING *`,
+                [candidatura_id, status]
+            );
+            return rows[0];
+        } catch (erro) {
+            console.error('Erro ao atualizar status da candidatura:', erro);
             throw erro;
         }
     }
