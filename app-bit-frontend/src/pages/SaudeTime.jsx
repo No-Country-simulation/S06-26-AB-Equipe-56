@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import { 
   Heart, 
   Sparkles, 
@@ -6,16 +7,86 @@ import {
   ArrowRight,
   TrendingUp,
   Compass,
-  BarChart3
+  BarChart3,
+  Loader2
 } from 'lucide-react';
 
-const METRICS = [
-  { id: 1, label: 'Índice de Inclusão', val: '88%', desc: 'Clima e pertencimento', trend: '+4% vs trim. anterior', isUp: true },
-  { id: 2, label: 'Taxa de Retenção', val: '94%', desc: 'Talentos diversos', trend: '+1.5% este mês', isUp: true },
-  { id: 3, label: 'Equidade Salarial', val: '98%', desc: 'Relação de remuneração', trend: 'Estável', isUp: false }
-];
-
 const SaudeTime = () => {
+  const [esgData, setEsgData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEsgReport = async () => {
+      try {
+        const response = await api.get('/metas/relatorio');
+        setEsgData(response.data || []);
+      } catch (error) {
+        console.error('Erro ao buscar relatorio ESG:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEsgReport();
+  }, []);
+
+  // Calculate dynamic metrics
+  const totalMetas = esgData.length;
+  
+  // 1. Inclusion Index (Average ESG goals progress)
+  const averageProgress = totalMetas > 0
+    ? Math.min(100, Math.round(esgData.reduce((acc, curr) => {
+        const metaVal = parseFloat(curr.meta || 0);
+        const progress = metaVal > 0 ? (curr.contratacoes_realizadas / metaVal) * 100 : 0;
+        return acc + progress;
+      }, 0) / totalMetas))
+    : 0;
+
+  // 2. Hiring Index (Total hiring count)
+  const totalHired = totalMetas > 0
+    ? esgData.reduce((acc, curr) => acc + curr.contratacoes_realizadas, 0)
+    : 0;
+
+  // 3. Batidas goals count
+  const batidasCount = esgData.filter(item => {
+    const progress = item.meta > 0 ? (item.contratacoes_realizadas / item.meta) * 100 : 0;
+    return progress >= 100;
+  }).length;
+
+  const METRICS = [
+    { 
+      id: 1, 
+      label: 'Aderência às Metas ESG', 
+      val: totalMetas > 0 ? `${averageProgress}%` : '0%', 
+      desc: totalMetas > 0 ? `${batidasCount} de ${totalMetas} metas alcançadas` : 'Nenhuma meta definida', 
+      trend: totalMetas > 0 ? 'Atualizado em tempo real' : 'Defina metas na Home', 
+      isUp: averageProgress > 50 
+    },
+    { 
+      id: 2, 
+      label: 'Contratações Afirmativas', 
+      val: `${totalHired}`, 
+      desc: 'Colaboradores integrados', 
+      trend: totalHired > 0 ? `+${totalHired} novos talentos` : 'Sem contratações registradas', 
+      isUp: totalHired > 0 
+    },
+    { 
+      id: 3, 
+      label: 'Equidade Salarial', 
+      val: '98.5%', 
+      desc: 'Alinhamento corporativo B2B', 
+      trend: 'Excelente conformidade', 
+      isUp: true 
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3 text-text">
+        <Loader2 size={32} className="animate-spin text-primary" />
+        <span className="text-xs text-muted font-semibold">Carregando indicadores de saúde do time...</span>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8 animate-fadeIn text-text">
       {/* Welcome Banner */}
@@ -66,7 +137,7 @@ const SaudeTime = () => {
       {/* Details placeholder */}
       <div className="bg-surface rounded-card p-6 border border-border shadow-card max-w-2xl flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between premium-card-gradient relative overflow-hidden">
         <div className="flex gap-4 items-center">
-          <div className="p-3 bg-primary/10 border border-primary/10 rounded-2xl text-primary">
+          <div className="p-3 dashboard-icon-primary rounded-2xl">
             <BarChart3 size={22} />
           </div>
           <div>

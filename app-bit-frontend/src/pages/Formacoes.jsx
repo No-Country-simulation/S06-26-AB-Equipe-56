@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import { 
   Clock, 
   BookOpen, 
@@ -7,94 +8,65 @@ import {
   Award,
   Sparkles,
   X,
-  BookMarked
+  BookMarked,
+  Loader2
 } from 'lucide-react';
 
-const INITIAL_TRILHAS = [
-  {
-    id: 'TR-001',
-    categoria: 'Core RH',
-    obrigatoria: true,
-    titulo: 'Recrutamento Sem Viés',
-    duracao: '120 min',
-    progresso: 40,
-    modulosCount: 2,
-    modulos: [
-      { id: 'M1', titulo: 'Conceitos de Viés Inconsciente', concluido: true },
-      { id: 'M2', titulo: 'Técnicas de Entrevista Cega', concluido: false }
-    ]
-  },
-  {
-    id: 'TR-002',
-    categoria: 'Inicie por aqui',
-    obrigatoria: false,
-    titulo: 'Cultura Inclusiva no Trabalho',
-    duracao: '90 min',
-    progresso: 20,
-    modulosCount: 1,
-    modulos: [
-      { id: 'M1', titulo: 'Comunicação Empática e Diversidade', concluido: false }
-    ]
-  },
-  {
-    id: 'TR-003',
-    categoria: 'Mitigação de Viés',
-    obrigatoria: true,
-    titulo: 'Mitigação de Viés',
-    duracao: '60 min',
-    progresso: 75,
-    modulosCount: 1,
-    modulos: [
-      { id: 'M1', titulo: 'Estratégias de Equidade de Gênero', concluido: false }
-    ]
-  }
-];
-
 const Formacoes = () => {
-  const [trilhas, setTrilhas] = useState(INITIAL_TRILHAS);
+  const [trilhas, setTrilhas] = useState([]);
   const [selectedTrilha, setSelectedTrilha] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchTrilhas = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const response = await api.get('/trilhas');
+      setTrilhas(response.data || []);
+      
+      // Update selectedTrilha if modal is open to reflect live progress changes
+      if (selectedTrilha) {
+        const updatedSelected = (response.data || []).find(t => t.id === selectedTrilha.id);
+        if (updatedSelected) {
+          setSelectedTrilha(updatedSelected);
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar trilhas:', err);
+      setError('Erro ao carregar as trilhas do servidor. Verifique a conexão com o backend.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrilhas();
+  }, []);
 
   const handleOpenTrilha = (trilha) => {
     setSelectedTrilha(trilha);
     setModalOpen(true);
   };
 
-  const handleToggleModulo = (trilhaId, moduloId) => {
-    const updatedTrilhas = trilhas.map(t => {
-      if (t.id === trilhaId) {
-        const updatedModulos = t.modulos.map(m => {
-          if (m.id === moduloId) {
-            return { ...m, concluido: !m.concluido };
-          }
-          return m;
-        });
-        
-        // Calculate new progress based on concluded modules
-        const concluidosCount = updatedModulos.filter(m => m.concluido).length;
-        const newProgress = Math.round((concluidosCount / updatedModulos.length) * 100);
-        
-        return {
-          ...t,
-          modulos: updatedModulos,
-          progresso: newProgress
-        };
-      }
-      return t;
-    });
-
-    setTrilhas(updatedTrilhas);
-    // Update selected trilha state to update modal view immediately
-    const updatedSelected = updatedTrilhas.find(t => t.id === trilhaId);
-    setSelectedTrilha(updatedSelected);
+  const handleToggleModulo = async (trilhaId, moduloId) => {
+    try {
+      // Optmistic state toggle or direct API call
+      await api.post(`/trilhas/modulos/${moduloId}/toggle`);
+      // Re-fetch all trails to update state and calculate new progresses
+      await fetchTrilhas();
+    } catch (err) {
+      console.error('Erro ao alternar progresso do módulo:', err);
+    }
   };
 
   // Calculate overall stats
   const totalTrilhas = trilhas.length;
   const concluídasCount = trilhas.filter(t => t.progresso === 100).length;
-  const totalProgressoPercent = Math.round(
-    trilhas.reduce((acc, curr) => acc + curr.progresso, 0) / totalTrilhas
-  );
+  const totalProgressoPercent = totalTrilhas > 0
+    ? Math.round(trilhas.reduce((acc, curr) => acc + curr.progresso, 0) / totalTrilhas)
+    : 0;
 
   return (
     <div className="space-y-8 animate-fadeIn text-text">
@@ -125,84 +97,102 @@ const Formacoes = () => {
               {concluídasCount} de {totalTrilhas} trilhas concluídas
             </span>
           </div>
-          <div className="h-10 w-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+          <div className="h-10 w-10 dashboard-icon-primary rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
             <Award size={20} />
           </div>
         </div>
       </div>
 
-      {/* Grid of Trails */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trilhas.map((trilha) => (
-          <div 
-            key={trilha.id}
-            className="bg-surface rounded-card p-6 border border-border shadow-card hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between gap-6 group cursor-pointer relative overflow-hidden premium-card-gradient"
-            onClick={() => handleOpenTrilha(trilha)}
+      {/* Loading / Error States */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 bg-surface rounded-card border border-border">
+          <Loader2 className="animate-spin text-primary" size={32} />
+          <span className="text-xs text-muted font-semibold">Carregando formações corporativas...</span>
+        </div>
+      ) : error ? (
+        <div className="p-8 bg-surface rounded-card border border-red-500/10 text-center space-y-2">
+          <p className="text-xs text-red-500 font-bold">{error}</p>
+          <button 
+            onClick={fetchTrilhas}
+            className="py-1.5 px-3 bg-primary text-white text-[10px] font-bold rounded-lg"
           >
-            {/* Upper tags & Code */}
-            <div className="space-y-3.5">
-              <div className="flex justify-between items-center flex-wrap gap-2">
-                <span className="text-[10px] font-mono font-black text-muted block uppercase tracking-wider">
-                  CÓD: {trilha.id}
-                </span>
-                <div className="flex gap-1.5">
-                  <span className="text-[9px] font-bold px-2 py-0.5 bg-bg border border-border rounded-md text-muted uppercase">
-                    {trilha.categoria}
+            Tentar Novamente
+          </button>
+        </div>
+      ) : (
+        /* Grid of Trails */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {trilhas.map((trilha) => (
+            <div 
+              key={trilha.id}
+              className="bg-surface rounded-card p-6 border border-border shadow-card hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between gap-6 group cursor-pointer relative overflow-hidden premium-card-gradient"
+              onClick={() => handleOpenTrilha(trilha)}
+            >
+              {/* Upper tags & Code */}
+              <div className="space-y-3.5">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <span className="text-[10px] font-mono font-black text-muted block uppercase tracking-wider">
+                    CÓD: TR-00{trilha.id}
                   </span>
-                  {trilha.obrigatoria && (
-                    <span className="text-[9px] font-bold px-2 py-0.5 badge-primary rounded-md uppercase">
-                      Obrigatória
+                  <div className="flex gap-1.5">
+                    <span className="text-[9px] font-bold px-2 py-0.5 bg-bg border border-border rounded-md text-muted uppercase">
+                      {trilha.categoria}
                     </span>
-                  )}
+                    {trilha.obrigatoria && (
+                      <span className="text-[9px] font-bold px-2 py-0.5 badge-primary rounded-md uppercase">
+                        Obrigatória
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-base font-bold text-text group-hover:text-primary transition-colors leading-snug">
+                  {trilha.titulo}
+                </h3>
+
+                {/* Duration with Clock */}
+                <div className="flex items-center gap-1.5 text-[10px] text-muted font-bold">
+                  <Clock size={12} className="text-muted" />
+                  <span>{trilha.duracao}</span>
                 </div>
               </div>
 
-              {/* Title */}
-              <h3 className="text-base font-bold text-text group-hover:text-primary transition-colors leading-snug">
-                {trilha.titulo}
-              </h3>
+              {/* Progress Area */}
+              <div className="space-y-2 border-t border-border/60 pt-4">
+                <div className="flex justify-between text-[10px] font-bold">
+                  <span className="text-muted">Progresso</span>
+                  <span className="text-primary">{trilha.progresso}%</span>
+                </div>
+                <div className="w-full h-2 bg-bg border border-border rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500" 
+                    style={{ width: `${trilha.progresso}%` }}
+                  ></div>
+                </div>
+              </div>
 
-              {/* Duration with Clock */}
-              <div className="flex items-center gap-1.5 text-[10px] text-muted font-bold">
-                <Clock size={12} className="text-muted" />
-                <span>{trilha.duracao}</span>
+              {/* Bottom count & Button */}
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-[10px] text-muted font-bold flex items-center gap-1.5">
+                  <BookOpen size={12} className="text-muted" />
+                  <span>{trilha.modulosCount} módulos</span>
+                </span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenTrilha(trilha);
+                  }}
+                  className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-strong text-white font-bold rounded-xl text-[10px] transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
+                >
+                  <span>{trilha.progresso === 100 ? 'Revisar' : 'Iniciar trilha'}</span>
+                  <Play size={10} fill="white" />
+                </button>
               </div>
             </div>
-
-            {/* Progress Area */}
-            <div className="space-y-2 border-t border-border/60 pt-4">
-              <div className="flex justify-between text-[10px] font-bold">
-                <span className="text-muted">Progresso</span>
-                <span className="text-primary">{trilha.progresso}%</span>
-              </div>
-              <div className="w-full h-2 bg-bg border border-border rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500" 
-                  style={{ width: `${trilha.progresso}%` }}
-                ></div>
-              </div>
-            </div>
-
-            {/* Bottom count & Button */}
-            <div className="flex justify-between items-center mt-1">
-              <span className="text-[10px] text-muted font-bold flex items-center gap-1.5">
-                <BookOpen size={12} className="text-muted" />
-                <span>{trilha.modulosCount} módulos</span>
-              </span>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleOpenTrilha(trilha);
-                }}
-                className="flex items-center gap-1.5 py-2 px-4 bg-primary hover:bg-primary-strong text-white font-bold rounded-xl text-[10px] transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
-              >
-                <span>{trilha.progresso === 100 ? 'Revisar' : 'Iniciar trilha'}</span>
-                <Play size={10} fill="white" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* Trilha Details / Interaction Modal */}
       {modalOpen && selectedTrilha && (
