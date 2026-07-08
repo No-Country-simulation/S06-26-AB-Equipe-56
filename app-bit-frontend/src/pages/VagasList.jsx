@@ -146,6 +146,12 @@ const VagasList = () => {
                   {vaga.titulo}
                 </h3>
 
+                {vaga.recrutador_responsavel && (
+                  <p className="text-[10px] text-muted font-medium">
+                    Responsável: <span className="font-bold text-text">{vaga.recrutador_responsavel}</span>
+                  </p>
+                )}
+
                 {/* Badges */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {vaga.cargo && (
