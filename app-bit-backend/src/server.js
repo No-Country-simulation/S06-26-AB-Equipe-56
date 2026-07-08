@@ -17,6 +17,7 @@ const metasRoutes = require('./routes/metas.routes');
 const trilhaRoutes = require('./routes/trilha.routes');
 const candidaturaRoutes = require('./routes/candidatura.routes');
 const matchRoutes = require('./routes/match.routes');
+const { startMcpTools } = require('./mcp/tools');
 
 app.use('/api/recrutadores', recrutadorRoutes);
 app.use('/api/candidatos', candidatoRoutes);
@@ -35,6 +36,19 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
-});
+const iniciarServidor = async () => {
+    if (process.env.MCP_ENABLED !== 'false') {
+        try {
+            await startMcpTools();
+            console.log('🧠 MCP tools iniciados junto com o backend.');
+        } catch (erro) {
+            console.error('Falha ao iniciar o MCP tools:', erro);
+        }
+    }
+
+    app.listen(PORT, () => {
+        console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    });
+};
+
+iniciarServidor();
