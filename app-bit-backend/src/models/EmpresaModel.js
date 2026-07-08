@@ -1,14 +1,13 @@
 const { conectarBanco } = require('../config/db_postgre');
 
 class EmpresaModel {
-    
     static async listarTodas() {
         try {
             const pool = await conectarBanco();
             const { rows } = await pool.query('SELECT * FROM Empresa');
-            return rows; 
+            return rows;
         } catch (erro) {
-            console.error("Erro ao buscar empresas no banco:", erro);
+            console.error('Erro ao buscar empresas no banco:', erro);
             throw erro;
         }
     }
@@ -23,7 +22,7 @@ class EmpresaModel {
             );
 
             if (verificacao.rows.length > 0) {
-                throw new Error("CNPJ_JA_EXISTENTE");
+                throw new Error('CNPJ_JA_EXISTENTE');
             }
 
             const { rows } = await pool.query(
@@ -32,7 +31,7 @@ class EmpresaModel {
                  RETURNING *`,
                 [empresaData.nome, empresaData.razao_social, empresaData.cnpj]
             );
-            
+
             return rows[0];
         } catch (erro) {
             throw erro;
@@ -46,36 +45,35 @@ class EmpresaModel {
                 'SELECT nome, razao_social, cnpj FROM Empresa WHERE empresa_id = $1',
                 [empresa_id]
             );
-            
+
             return rows[0];
         } catch (erro) {
-            console.error("Erro ao buscar empresa:", erro);
+            console.error('Erro ao buscar empresa:', erro);
             throw erro;
         }
     }
-}
 
     static async buscarMetasPorEmpresa(empresa_id) {
         try {
             const pool = await conectarBanco();
-            const resultado = await pool.request()
-                .input('empresa_id', sql.Int, empresa_id)
-                .query(`
-                    SELECT 
-                        empresa_id,
-                        empresa_nome,
-                        empresa_razao_social,
-                        empresa_cnpj,
-                        metas_esg_ativas
-                    FROM vw_metas_empresa
-                    WHERE empresa_id = @empresa_id
-                `);
+            const { rows } = await pool.query(
+                `SELECT
+                    empresa_id,
+                    empresa_nome,
+                    empresa_razao_social,
+                    empresa_cnpj,
+                    metas_esg_ativas
+                FROM vw_metas_empresa
+                WHERE empresa_id = $1`,
+                [empresa_id]
+            );
 
-            return resultado.recordset[0];
+            return rows[0];
         } catch (erro) {
-            console.error("Erro ao buscar metas da empresa na view vw_metas_empresa:", erro);
+            console.error('Erro ao buscar metas da empresa na view vw_metas_empresa:', erro);
             throw erro;
         }
     }
 }
+
 module.exports = EmpresaModel;

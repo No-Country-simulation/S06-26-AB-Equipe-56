@@ -1,16 +1,77 @@
-# React + Vite
+# App Bit Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend do projeto App Bit, desenvolvido com React, Vite e Tailwind CSS.
 
-Currently, two official plugins are available:
+## Funcionalidades principais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Interface de autenticação
+- Dashboard com navegação por páginas
+- Módulo de saúde com painel, consultas, exames e formulários
+- Integração com a API backend via Axios
 
-## React Compiler
+## Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite
+- React Router DOM
+- Axios
+- Tailwind CSS
+- Lucide React
 
-## Expanding the Oxlint configuration
+## Requisitos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- Node.js 18 ou superior
+- npm
+
+## Instalação
+
+```bash
+cd app-bit-frontend
+npm install
+```
+
+## Execução
+
+Ambiente de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+O frontend ficará disponível em:
+
+```text
+http://localhost:5173
+```
+
+## Build de produção
+
+```bash
+npm run build
+```
+
+## Estrutura principal
+
+```text
+src/
+  components/
+  context/
+  pages/
+  routes/
+  services/
+  App.jsx
+  main.jsx
+```
+
+## Princípios de clean code
+
+- Organizar componentes e lógicas em blocos pequenos e com responsabilidade única.
+- Centralizar acesso à API e controle de sessão para evitar duplicação de código.
+- Manter a interface do módulo de saúde consistente, legível e fácil de evoluir.
+- Priorizar clareza na comunicação com o backend e no tratamento de erro.
+
+## Observações
+
+- A aplicação consome a API backend em execução localmente.
+- Certifique-se de que o backend esteja rodando antes de testar fluxos que dependam de autenticação e dados.
+- O módulo de saúde usa tokens específicos para acessar os endpoints do backend.

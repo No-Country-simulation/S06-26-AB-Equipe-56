@@ -1,5 +1,16 @@
 import axios from 'axios';
 
+const STORAGE_KEYS = {
+  token: 'bit_token',
+  user: 'bit_user',
+  saudeToken: 'bit_saude_token',
+  saudeUser: 'bit_saude_user',
+};
+
+const limparSessao = () => {
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+};
+
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
   headers: {
@@ -7,28 +18,26 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to inject JWT token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('bit_token');
+    const isSaudeRequest = config.url?.startsWith('/saude');
+    const token = isSaudeRequest
+      ? localStorage.getItem(STORAGE_KEYS.saudeToken) || localStorage.getItem(STORAGE_KEYS.token)
+      : localStorage.getItem(STORAGE_KEYS.token);
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle authorization errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('bit_token');
-      localStorage.removeItem('bit_user');
-      // If we are not already on the login page, redirect
+    if (error.response?.status === 401) {
+      limparSessao();
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/registro-convite')) {
         window.location.href = '/login';
       }
