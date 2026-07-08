@@ -47,30 +47,61 @@ class VagaModel {
     static async buscarVagaPorId(vaga_id, empresa_id) {
         try {
             const pool = await conectarBanco();
-            const resultado = await pool.request()
-                .input('vaga_id', sql.Int, vaga_id)
-                .input('empresa_id', sql.Int, empresa_id)
-                .query(`
-                    SELECT 
-                        vaga_id,
-                        recrutador_id,
-                        empresa_id,
-                        vaga_titulo AS titulo,
-                        vaga_descricao AS descricao,
-                        vaga_data_cadastro AS data_cadastro,
-                        cargo_nome AS cargo,
-                        senioridade_nome AS senioridade,
-                        modalidade_nome AS modalidade,
-                        requisitos_skills
-                    FROM vw_detalhes_vaga
-                    WHERE vaga_id = @vaga_id AND empresa_id = @empresa_id
-                `);
-            return resultado.recordset[0];
-
+            const { rows } = await pool.query(
+                `SELECT 
+                    vaga_id,
+                    recrutador_id,
+                    empresa_id,
+                    vaga_titulo AS titulo,
+                    vaga_descricao AS descricao,
+                    vaga_data_cadastro AS data_cadastro,
+                    cargo_nome AS cargo,
+                    senioridade_nome AS senioridade,
+                    modalidade_nome AS modalidade,
+                    requisitos_skills
+                 FROM vw_detalhes_vaga
+                 WHERE vaga_id = $1 AND empresa_id = $2`,
+                [vaga_id, empresa_id]
+            );
+            return rows[0];
         } catch (erro) {
+            const mensagem = erro?.message || '';
+            if (erro?.code === '42P01' || mensagem.includes('vw_detalhes_vaga')) {
+                try {
+                    const pool = await conectarBanco();
+                    const { rows } = await pool.query(
+                        `SELECT 
+                            v.vaga_id,
+                            v.recrutador_id,
+                            v.empresa_id,
+                            v.titulo,
+                            v.descricao,
+                            v.data_cadastro,
+                            c.nome AS cargo,
+                            s.nome AS senioridade,
+                            m.nome AS modalidade,
+                            '[]'::jsonb AS requisitos_skills
+                         FROM Vagas v
+                         JOIN Cargos c ON v.cargo_id = c.cargo_id
+                         JOIN Senioridades s ON v.senioridade_id = s.senioridade_id
+                         JOIN Modalidades m ON v.modalidade_id = m.modalidade_id
+                         WHERE v.vaga_id = $1 AND v.empresa_id = $2`,
+                        [vaga_id, empresa_id]
+                    );
+                    return rows[0];
+                } catch (fallbackErro) {
+                    console.error("Erro ao buscar vaga por ID usando as tabelas base:", fallbackErro);
+                    throw fallbackErro;
+                }
+            }
+
             console.error("Erro ao buscar vaga por ID na view vw_detalhes_vaga:", erro);
             throw erro;
         }
+    }
+
+    static async buscarPorId(vaga_id, empresa_id) {
+        return this.buscarVagaPorId(vaga_id, empresa_id);
     }
 }
 

@@ -13,9 +13,10 @@ const recrutadorRoutes = require('./routes/recrutador.routes');
 const candidatoRoutes = require('./routes/candidato.routes');
 const conviteRoutes = require('./routes/convite.routes');
 const vagaRoutes = require('./routes/vaga.routes');
-const metasRoutes = require('./routes/metasRoutes');
+const metasRoutes = require('./routes/metas.routes');
 const trilhaRoutes = require('./routes/trilha.routes');
 const candidaturaRoutes = require('./routes/candidatura.routes');
+const matchRoutes = require('./routes/match.routes');
 
 app.use('/api/recrutadores', recrutadorRoutes);
 app.use('/api/candidatos', candidatoRoutes);
@@ -25,6 +26,8 @@ app.use('/api/vagas', vagaRoutes);
 app.use('/api/metas', metasRoutes);
 app.use('/api/trilhas', trilhaRoutes);
 app.use('/api/candidaturas', candidaturaRoutes);
+app.use('/match', matchRoutes);
+app.use('/api/match', matchRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'API do App BiT rodando com sucesso!' });

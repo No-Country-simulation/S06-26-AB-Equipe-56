@@ -53,29 +53,34 @@ class EmpresaModel {
             throw erro;
         }
     }
-}
 
-    static async buscarMetasPorEmpresa(empresa_id) {
-        try {
-            const pool = await conectarBanco();
-            const resultado = await pool.request()
-                .input('empresa_id', sql.Int, empresa_id)
-                .query(`
-                    SELECT 
+        static async buscarMetasPorEmpresa(empresa_id) {
+            try {
+                const pool = await conectarBanco();
+                const { rows } = await pool.query(
+                    `SELECT 
                         empresa_id,
                         empresa_nome,
                         empresa_razao_social,
                         empresa_cnpj,
                         metas_esg_ativas
                     FROM vw_metas_empresa
-                    WHERE empresa_id = @empresa_id
-                `);
+                    WHERE empresa_id = $1`,
+                    [empresa_id]
+                );
 
-            return resultado.recordset[0];
-        } catch (erro) {
-            console.error("Erro ao buscar metas da empresa na view vw_metas_empresa:", erro);
-            throw erro;
+                // Se a empresa não for encontrada, retorna null explicitamente em vez de undefined
+                if (rows.length === 0) {
+                    return null; 
+                }
+
+                // Retorna o registro da empresa com o JSONB pronto
+                return rows[0];
+            } catch (erro) {
+                console.error(`Erro ao buscar metas para a empresa_id ${empresa_id} na view vw_metas_empresa:`, erro);
+                throw erro;
+            }
         }
-    }
 }
+
 module.exports = EmpresaModel;

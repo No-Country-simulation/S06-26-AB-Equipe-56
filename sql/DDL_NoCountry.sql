@@ -256,6 +256,31 @@ CREATE TABLE AderenciaMetasESG (
   contratacao_id INT NOT NULL
 );
 
+CREATE TABLE Endereco_Candidato (
+    endereco_id SERIAL PRIMARY KEY,
+    candidato_id INT NOT NULL,
+    cep VARCHAR(10) NOT NULL,
+    logradouro VARCHAR(255) NOT NULL,
+    numero VARCHAR(20),
+    complemento VARCHAR(100),
+    bairro VARCHAR(100),
+    cidade VARCHAR(100) NOT NULL,
+    estado CHAR(2) NOT NULL, -- UF (ex: SP, MG)
+    pais VARCHAR(50) DEFAULT 'Brasil',
+    latitude NUMERIC(10, 8),
+    longitude NUMERIC(11, 8),
+    geohash VARCHAR(20), -- Opcional, p/ join com tensores do Vísent CDRView
+    is_atual BOOLEAN DEFAULT TRUE,
+    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_candidato FOREIGN KEY (candidato_id) REFERENCES Candidatos(candidato_id) ON DELETE CASCADE
+);
+
+-- Índices recomendados para buscas de localização e performance
+CREATE INDEX idx_endereco_candidato_id ON Endereco_Candidato(candidato_id);
+CREATE INDEX idx_endereco_geohash ON Endereco_Candidato(geohash);
+
+
 -- ===========================================================
 -- Foreign Keys
 -- ===========================================================
