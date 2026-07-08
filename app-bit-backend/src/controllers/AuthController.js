@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const RecrutadorModel = require('../models/RecrutadorModel');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
+
 const login = async (req, res) => {
     try {
         const { email, senha } = req.body;
@@ -27,8 +29,8 @@ const login = async (req, res) => {
         };
 
         const token = jwt.sign(
-            payload, 
-            process.env.JWT_SECRET, 
+            payload,
+            JWT_SECRET,
             { expiresIn: '8h' }
         );
 
