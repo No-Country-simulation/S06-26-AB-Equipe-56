@@ -1,37 +1,48 @@
 require('dotenv').config();
-// Mudamos para o pacote oficial do PostgreSQL
-const { Pool } = require('pg'); 
+const { Pool } = require('pg');
 
-const dbConfig = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_SERVER,       // No 'pg', usamos 'host' em vez de 'server'
-    database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT || 5432, // O padrão do Postgres é 5432
-    // Se precisar de SSL (equivalente ao encrypt/trustServerCertificate), descomente abaixo:
-    // ssl: { rejectUnauthorized: false } 
-};
+function montarConfigBanco() {
+    const connectionString = process.env.DATABASE_URL?.trim();
 
-// Criamos o pool de conexões
-const pool = new Pool(dbConfig);
+    if (connectionString) {
+        return {
+            connectionString,
+            ssl: connectionString.includes('neon.tech') || connectionString.includes('neon')
+                ? { rejectUnauthorized: false }
+                : undefined,
+        };
+    }
+
+    const dbConfig = {
+        user: process.env.DB_USER?.trim(),
+        password: process.env.DB_PASSWORD?.trim(),
+        host: process.env.DB_SERVER?.trim(),
+        database: process.env.DB_DATABASE?.trim(),
+        port: Number(process.env.DB_PORT || 5432),
+    };
+
+    if (!dbConfig.user || !dbConfig.password || !dbConfig.host || !dbConfig.database) {
+        throw new Error('Configure DATABASE_URL ou as variáveis DB_USER, DB_PASSWORD, DB_SERVER e DB_DATABASE.');
+    }
+
+    return dbConfig;
+}
+
+const pool = new Pool(montarConfigBanco());
+
+pool.on('error', (erro) => {
+    console.error('❌ Erro inesperado no pool do PostgreSQL:', erro);
+});
 
 async function conectarBanco() {
     try {
-        // No 'pg', fazemos um cliente rápido do pool para testar a conexão
         const client = await pool.connect();
-        console.log("📦 Conectado ao PostgreSQL com sucesso!");
-        
-        // Libera o cliente de volta para o pool após o teste bem-sucedido
-        client.release(); 
-        
+        client.release();
         return pool;
     } catch (erro) {
-        console.error("❌ Erro ao conectar no banco:", erro);
+        console.error('❌ Erro ao conectar no banco:', erro);
         throw erro;
     }
 }
 
-conectarBanco();
-
-// Exportamos o pool (que é o equivalente ao sql do mssql para fazer queries)
 module.exports = { conectarBanco, pool };

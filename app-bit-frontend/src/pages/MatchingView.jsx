@@ -54,6 +54,8 @@ const MatchingView = () => {
   
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCurriculumCandidate, setSelectedCurriculumCandidate] = useState(null);
+  const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchVagaDetails = async () => {
@@ -88,6 +90,11 @@ const MatchingView = () => {
   const handleOpenExplicabilidade = (candidate) => {
     setSelectedCandidate(candidate);
     setIsModalOpen(true);
+  };
+
+  const handleOpenCurriculo = (candidate) => {
+    setSelectedCurriculumCandidate(candidate);
+    setIsCurriculumModalOpen(true);
   };
 
   const getStatusOptionValue = (dbStatus) => {
@@ -311,6 +318,13 @@ const MatchingView = () => {
                         </span>
                       </div>
                       <p className="text-xs text-muted font-medium">{candidato.resumo}</p>
+
+                      <button
+                        onClick={() => handleOpenCurriculo(candidato)}
+                        className="mt-1 inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary transition-all hover:bg-primary/20 hover:border-primary/50 hover:text-primary-strong"
+                      >
+                        <span>Ver currículo</span>
+                      </button>
                       
                       {/* Diversity Badges */}
                       <div className="flex flex-wrap gap-1 pt-1">
@@ -369,6 +383,78 @@ const MatchingView = () => {
           </div>
         </div>
       </div>
+
+      {/* Currículo Modal em tela cheia */}
+      {isCurriculumModalOpen && selectedCurriculumCandidate && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-sm">
+          <div className="absolute inset-0" onClick={() => setIsCurriculumModalOpen(false)}></div>
+
+          <div className="relative w-full h-full max-w-6xl max-h-[95vh] bg-surface border border-border rounded-[24px] shadow-card overflow-hidden z-10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <div>
+                <h3 className="text-sm font-bold text-text">Currículo de {selectedCurriculumCandidate.nome}</h3>
+                <p className="text-xs text-muted">Visualização em tela cheia</p>
+              </div>
+              <button
+                onClick={() => setIsCurriculumModalOpen(false)}
+                className="px-4 py-2 bg-bg hover:bg-surface-hover border border-border rounded-xl text-xs font-bold text-text transition-all"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto h-[calc(100%-73px)] space-y-6">
+              <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+                <div className="space-y-4">
+                  <div className="bg-bg border border-border rounded-2xl p-5 space-y-2">
+                    <h4 className="text-[10px] font-bold text-muted uppercase tracking-wider">Resumo profissional</h4>
+                    <p className="text-sm text-text leading-relaxed font-medium">
+                      {selectedCurriculumCandidate.resumo || 'Perfil alinhado com essa oportunidade e com boa aderência técnica.'}
+                    </p>
+                  </div>
+
+                  <div className="bg-bg border border-border rounded-2xl p-5 space-y-3">
+                    <h4 className="text-[10px] font-bold text-muted uppercase tracking-wider">Competências principais</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedCurriculumCandidate.explicabilidade?.skillsMatched?.length
+                        ? selectedCurriculumCandidate.explicabilidade.skillsMatched
+                        : ['Boa comunicação', 'Resolução de problemas', 'Trabalho em equipe'])
+                        .map((skill) => (
+                          <span key={skill} className="text-[10px] px-2.5 py-1 badge-secondary rounded-full font-bold">
+                            {skill}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-bg border border-border rounded-2xl p-5 space-y-2">
+                    <h4 className="text-[10px] font-bold text-muted uppercase tracking-wider">Marcadores</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCurriculumCandidate.marcadores?.map((mark) => (
+                        <span
+                          key={mark.label}
+                          className={`text-[9px] font-bold px-2 py-1 border rounded-md uppercase tracking-wider ${getMarkerColor(mark.tipo)}`}
+                        >
+                          {mark.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-secondary/5 border border-secondary/15 rounded-2xl p-5 space-y-2">
+                    <h4 className="text-[10px] font-bold text-text uppercase tracking-wider">Observações de alinhamento</h4>
+                    <p className="text-sm text-text leading-relaxed font-medium">
+                      {selectedCurriculumCandidate.explicabilidade?.scoreExplanation || 'Perfil com forte aderência à vaga, destacando competências técnicas e ESG.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Explicabilidade Modal */}
       {isModalOpen && selectedCandidate && (

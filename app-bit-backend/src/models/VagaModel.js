@@ -61,18 +61,6 @@ class VagaModel {
                     requisitos_skills
                  FROM vw_detalhes_vaga
                  WHERE vaga_id = $1 AND empresa_id = $2`,
-
-                    v.*,
-                    r.nome AS recrutador_responsavel,
-                    c.nome AS cargo, 
-                    s.nome AS senioridade, 
-                    m.nome AS modalidade
-                 FROM Vagas v
-                 LEFT JOIN Recrutadores r ON v.recrutador_id = r.recrutador_id
-                 LEFT JOIN Cargos c ON v.cargo_id = c.cargo_id
-                 LEFT JOIN Senioridades s ON v.senioridade_id = s.senioridade_id
-                 LEFT JOIN Modalidades m ON v.modalidade_id = m.modalidade_id
-                 WHERE v.vaga_id = $1 AND v.empresa_id = $2`,
                 [vaga_id, empresa_id]
             );
             return rows[0];
@@ -108,13 +96,8 @@ class VagaModel {
             }
 
             console.error("Erro ao buscar vaga por ID na view vw_detalhes_vaga:", erro);
-            console.error("Erro ao buscar vaga por ID:", erro);
             throw erro;
         }
-    }
-
-    static async buscarPorId(vaga_id, empresa_id) {
-        return this.buscarVagaPorId(vaga_id, empresa_id);
     }
 }
 
