@@ -1,5 +1,6 @@
 import React from 'react';
 import { Menu, Sun, Moon } from 'lucide-react';
+import StatusSaude from '../StatusSaude';
 
 const Header = ({ 
   setSidebarOpen, 
@@ -16,6 +17,7 @@ const Header = ({
     if (path.includes('/vagas')) return 'Módulo de Vagas';
     if (path.includes('/pipelines')) return 'Pipelines de Recrutamento';
     if (path.includes('/mentoria')) return 'Programa de Mentoria';
+    if (path.includes('/saude-sistema')) return 'Saúde do Sistema';
     if (path.includes('/saude')) return 'Saúde do Time';
     if (path.includes('/equipe')) return 'Gestão de Equipe';
     return 'Painel';
@@ -42,6 +44,9 @@ const Header = ({
 
       {/* Header Info & Theme Switcher */}
       <div className="flex items-center gap-4">
+        {/* Indicador de Saúde do Sistema */}
+        <StatusSaude variant="pill" />
+
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}

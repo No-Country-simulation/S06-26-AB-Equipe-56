@@ -16,6 +16,7 @@ import Formacoes from '../pages/Formacoes';
 import Pipelines from '../pages/Pipelines';
 import Mentoria from '../pages/Mentoria';
 import SaudeTime from '../pages/SaudeTime';
+import SaudeSistema from '../pages/SaudeSistema';
 import { Loader2 } from 'lucide-react';
 
 const ProtectedRoute = ({ children }) => {
@@ -62,6 +63,7 @@ const AppRoutes = () => {
         <Route path="pipelines" element={<Pipelines />} />
         <Route path="mentoria" element={<Mentoria />} />
         <Route path="saude" element={<SaudeTime />} />
+        <Route path="saude-sistema" element={<SaudeSistema />} />
         <Route path="equipe" element={<EquipeList />} />
       </Route>
 

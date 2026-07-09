@@ -17,6 +17,7 @@ const metasRoutes = require('./routes/metas.routes');
 const trilhaRoutes = require('./routes/trilha.routes');
 const candidaturaRoutes = require('./routes/candidatura.routes');
 const matchRoutes = require('./routes/match.routes');
+const saudeRoutes = require('./routes/saude.routes');
 const { startMcpTools } = require('./mcp/tools');
 
 app.use('/api/recrutadores', recrutadorRoutes);
@@ -29,6 +30,7 @@ app.use('/api/trilhas', trilhaRoutes);
 app.use('/api/candidaturas', candidaturaRoutes);
 app.use('/match', matchRoutes);
 app.use('/api/match', matchRoutes);
+app.use('/api/saude', saudeRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'API do App BiT rodando com sucesso!' });
