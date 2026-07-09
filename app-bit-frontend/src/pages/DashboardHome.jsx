@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DashboardEsgAderencia from '../components/DashboardEsgAderencia';
+import StatusSaude from '../components/StatusSaude';
 
 const DashboardHome = () => {
   const { user } = useAuth();
@@ -264,8 +265,11 @@ const DashboardHome = () => {
         </div>
       </div>
 
+      {/* Status do Sistema (health check) */}
+      <StatusSaude variant="card" />
+
       {/* Dashboard de Aderência ESG */}
-      <DashboardEsgAderencia 
+      <DashboardEsgAderencia
         dados={esgData} 
         erro={esgError} 
         loading={esgLoading} 

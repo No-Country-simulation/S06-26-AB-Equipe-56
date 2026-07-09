@@ -10,8 +10,9 @@ import {
   GraduationCap, 
   Briefcase, 
   GitFork, 
-  Users, 
-  Heart 
+  Users,
+  Heart,
+  Activity
 } from 'lucide-react';
 
 const Layout = () => {
@@ -49,6 +50,7 @@ const Layout = () => {
     { path: '/dashboard/pipelines', label: 'Pipelines', icon: GitFork, color: 'text-secondary', activeBg: 'active-nav-secondary text-secondary shadow-[0_2px_10px_rgba(11,148,132,0.05)]' },
     { path: '/dashboard/mentoria', label: 'Mentoria', icon: Users, color: 'text-accent', activeBg: 'active-nav-accent text-accent shadow-[0_2px_10px_rgba(196,77,48,0.05)]' },
     { path: '/dashboard/saude', label: 'Saúde do Time', icon: Heart, color: 'text-accent', activeBg: 'active-nav-accent text-accent shadow-[0_2px_10px_rgba(196,77,48,0.05)]' },
+    { path: '/dashboard/saude-sistema', label: 'Saúde do Sistema', icon: Activity, color: 'text-secondary', activeBg: 'active-nav-secondary text-secondary shadow-[0_2px_10px_rgba(11,148,132,0.05)]' },
     { path: '/dashboard/equipe', label: 'Membros da Equipe', icon: Users, color: 'text-muted', activeBg: 'bg-surface border-border text-text' },
   ];
 

@@ -6915,4 +6915,17 @@ INSERT INTO ResultadosQuestionario (resultado_id, recrutador_id, questionario_id
 INSERT INTO ResultadosQuestionario (resultado_id, recrutador_id, questionario_id, tentativa, total_questoes, total_acertos, total_erros, nota, aprovado, data_realizacao) OVERRIDING SYSTEM VALUE VALUES (258, 35, 9, 1, 4, 3, 1, 75.0, true, '2023-08-12 06:36:26');
 
 SELECT setval(pg_get_serial_sequence('ResultadosQuestionario', 'resultado_id'), COALESCE((SELECT MAX(resultado_id) FROM ResultadosQuestionario), 1));
+
+-- LogSaude (10 registros)
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (1, 'ok', true, 12, 'Serviço e banco operacionais', '2026-06-01 08:00:03');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (2, 'ok', true, 9, 'Serviço e banco operacionais', '2026-06-05 12:30:11');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (3, 'ok', true, 15, 'Serviço e banco operacionais', '2026-06-10 22:15:47');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (4, 'erro', false, NULL, 'Falha na conexão com o banco: timeout', '2026-06-12 03:41:59');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (5, 'ok', true, 11, 'Serviço e banco operacionais', '2026-06-12 03:47:02');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (6, 'ok', true, 8, 'Serviço e banco operacionais', '2026-06-18 16:05:20');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (7, 'ok', true, 14, 'Serviço e banco operacionais', '2026-06-24 09:12:38');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (8, 'erro', false, NULL, 'Falha na conexão com o banco: SSL não suportado', '2026-06-28 19:58:04');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (9, 'ok', true, 10, 'Serviço e banco operacionais', '2026-07-01 07:30:55');
+INSERT INTO LogSaude (log_saude_id, status, banco_conectado, tempo_resposta_ms, mensagem, data_verificacao) OVERRIDING SYSTEM VALUE VALUES (10, 'ok', true, 13, 'Serviço e banco operacionais', '2026-07-07 21:00:17');
+SELECT setval(pg_get_serial_sequence('LogSaude', 'log_saude_id'), COALESCE((SELECT MAX(log_saude_id) FROM LogSaude), 1));
 COMMIT;

@@ -257,6 +257,19 @@ CREATE TABLE AderenciaMetasESG (
 );
 
 -- ===========================================================
+-- Monitoramento / Saúde da aplicação (health check)
+-- ===========================================================
+
+CREATE TABLE LogSaude (
+  log_saude_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  status VARCHAR(50) NOT NULL,
+  banco_conectado BOOLEAN NOT NULL,
+  tempo_resposta_ms INT,
+  mensagem TEXT,
+  data_verificacao TIMESTAMP NOT NULL DEFAULT now()
+);
+
+-- ===========================================================
 -- Foreign Keys
 -- ===========================================================
 
