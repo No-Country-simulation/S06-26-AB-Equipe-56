@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { getDiversityStats } from '../services/matchingService';
 import { 
   Briefcase, 
   Target, 
@@ -10,15 +9,32 @@ import {
   TrendingUp, 
   ArrowRight,
   Sparkles,
-  HeartHandshake
+  HeartHandshake,
+  CheckCircle2,
+  UserPlus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import DashboardEsgAderencia from '../components/DashboardEsgAderencia';
 
 const DashboardHome = () => {
   const { user } = useAuth();
   const [vagasCount, setVagasCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const stats = getDiversityStats();
+  const [esgData, setEsgData] = useState(null);
+  const [esgError, setEsgError] = useState(null);
+  const [esgLoading, setEsgLoading] = useState(true);
+
+  const fetchEsgReport = async () => {
+    try {
+      const response = await api.get('/metas/relatorio');
+      setEsgData(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar relatorio ESG:', error);
+      setEsgError('Não foi possível carregar os dados de aderência ESG do servidor backend.');
+    } finally {
+      setEsgLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchVagas = async () => {
@@ -31,7 +47,9 @@ const DashboardHome = () => {
         setLoading(false);
       }
     };
+
     fetchVagas();
+    fetchEsgReport();
   }, []);
 
   return (
@@ -63,6 +81,127 @@ const DashboardHome = () => {
         </div>
       </div>
 
+      {/* Onboarding Checklist Widget */}
+      {(!esgLoading && !loading && ((esgData && esgData.length === 0) || vagasCount === 0)) && (
+        <div className="bg-gradient-to-r from-primary/10 via-secondary/5 to-surface rounded-card p-6 border-2 border-primary/20 shadow-lg relative overflow-hidden space-y-4">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 badge-secondary rounded-lg">
+              <Sparkles size={16} />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-text uppercase tracking-wider">
+                Guia de Integração B2B
+              </h2>
+              <p className="text-[11px] text-muted font-medium mt-0.5">
+                Complete as etapas recomendadas abaixo para acelerar a estratégia de diversidade da sua empresa.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            {/* Step 1: ESG Goals */}
+            <div className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
+              esgData && esgData.length > 0 
+                ? 'bg-secondary/5 border-secondary/20 text-text' 
+                : 'bg-surface border-border hover:border-primary/30'
+            }`}>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-muted font-mono">Passo 1</span>
+                  {esgData && esgData.length > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase bg-secondary/15 text-secondary px-2 py-0.5 rounded-md border border-secondary/10">
+                      Concluído
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase bg-accent/15 text-accent px-2 py-0.5 rounded-md border border-accent/10 animate-pulse">
+                      Pendente
+                    </span>
+                  )}
+                </div>
+                <h4 className="text-xs font-bold text-text">Definir Metas ESG</h4>
+                <p className="text-[10px] text-muted leading-relaxed font-medium">
+                  Cadastre as metas de diversidade da empresa para habilitar os cálculos de aderência e triagem Inteligente.
+                </p>
+              </div>
+              {!(esgData && esgData.length > 0) && (
+                <button
+                  onClick={() => {
+                    const btn = document.querySelector('[data-open-esg-modal]');
+                    if (btn) {
+                      btn.click();
+                    } else {
+                      // Fallback: scroll to bottom where the goals list is
+                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-full text-center py-2 px-3 bg-primary hover:bg-primary-strong text-white font-bold rounded-xl text-[10px] transition-all cursor-pointer"
+                >
+                  Configurar Metas
+                </button>
+              )}
+            </div>
+
+            {/* Step 2: Publish Job */}
+            <div className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
+              vagasCount > 0 
+                ? 'bg-secondary/5 border-secondary/20 text-text' 
+                : 'bg-surface border-border hover:border-primary/30'
+            }`}>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-muted font-mono">Passo 2</span>
+                  {vagasCount > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase bg-secondary/15 text-secondary px-2 py-0.5 rounded-md border border-secondary/10">
+                      Concluído
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase bg-accent/15 text-accent px-2 py-0.5 rounded-md border border-accent/10">
+                      Pendente
+                    </span>
+                  )}
+                </div>
+                <h4 className="text-xs font-bold text-text">Publicar Vaga</h4>
+                <p className="text-[10px] text-muted leading-relaxed font-medium">
+                  Abra uma oportunidade com requisitos e veja a IA do Inclusi.va retornar a shortlist de candidatos recomendados.
+                </p>
+              </div>
+              {vagasCount === 0 && (
+                <Link
+                  to="/dashboard/vagas"
+                  className="w-full text-center py-2 px-3 bg-primary hover:bg-primary-strong text-white font-bold rounded-xl text-[10px] transition-all text-xs"
+                >
+                  Ir para Vagas
+                </Link>
+              )}
+            </div>
+
+            {/* Step 3: Invite Team */}
+            <div className="p-4 bg-surface border border-border hover:border-primary/30 rounded-xl transition-all flex flex-col justify-between gap-3">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-muted font-mono">Passo 3</span>
+                  <span className="inline-flex items-center gap-1 text-[8px] font-black uppercase bg-bg text-muted px-2 py-0.5 rounded-md border border-border">
+                    Equipe
+                  </span>
+                </div>
+                <h4 className="text-xs font-bold text-text">Convidar Recrutadores</h4>
+                <p className="text-[10px] text-muted leading-relaxed font-medium">
+                  Adicione outros membros do time de RH e colabore na gestão de pipelines e contratação afirmativa.
+                </p>
+              </div>
+              <Link
+                to="/dashboard/equipe"
+                className="w-full text-center py-2 px-3 bg-bg hover:bg-surface border border-border text-text font-bold rounded-xl text-[10px] transition-all"
+              >
+                Convidar Membros
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Vagas Card */}
@@ -84,12 +223,12 @@ const DashboardHome = () => {
         {/* ESG Target Card */}
         <div className="bg-surface rounded-card p-6 border border-border shadow-card hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-between group cursor-pointer relative overflow-hidden premium-card-gradient">
           <div className="space-y-2">
-            <span className="text-[10px] text-muted block uppercase tracking-wider font-bold">Meta ESG Anual</span>
+            <span className="text-[10px] text-muted block uppercase tracking-wider font-bold">Meta ESG Média</span>
             <h3 className="text-2xl font-extrabold text-text tracking-tight">
-              {stats.esgTarget}%
+              {esgLoading ? '...' : (esgData && esgData.length > 0 ? `${Math.round(esgData.reduce((acc, curr) => acc + parseFloat(curr.meta || 0), 0) / esgData.length)}%` : '0%')}
             </h3>
             <span className="text-[10px] text-muted block font-medium">
-              Representação em cargos tech
+              {esgData && esgData.length > 0 ? 'Média das metas salvas' : 'Defina metas abaixo'}
             </span>
           </div>
           <div className="p-3 dashboard-icon-neutral rounded-xl transition-all">
@@ -100,13 +239,23 @@ const DashboardHome = () => {
         {/* Index Card */}
         <div className="bg-surface rounded-card p-6 border border-border shadow-card hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 flex items-center justify-between group cursor-pointer relative overflow-hidden premium-card-gradient">
           <div className="space-y-2">
-            <span className="text-[10px] text-muted block uppercase tracking-wider font-bold">Índice de Diversidade</span>
+            <span className="text-[10px] text-muted block uppercase tracking-wider font-bold">Aderência ESG Média</span>
             <h3 className="text-2xl font-extrabold text-primary tracking-tight">
-              {stats.currentProgress}%
+              {esgLoading ? '...' : (esgData && esgData.length > 0 ? `${Math.min(100, Math.round(esgData.reduce((acc, curr) => {
+                const metaVal = parseFloat(curr.meta || 0);
+                const progress = metaVal > 0 ? (parseInt(curr.contratacoes_realizadas || 0, 10) / metaVal) * 100 : 0;
+                return acc + progress;
+              }, 0) / esgData.length))}%` : '0%')}
             </h3>
             <span className="text-[10px] text-secondary flex items-center gap-1 font-bold">
-              <TrendingUp size={12} />
-              <span>+2.4% este mês</span>
+              {esgData && esgData.length > 0 ? (
+                <>
+                  <TrendingUp size={12} />
+                  <span>Progresso das metas</span>
+                </>
+              ) : (
+                <span className="text-muted">Aguardando metas</span>
+              )}
             </span>
           </div>
           <div className="p-3 dashboard-icon-primary rounded-xl transition-all">
@@ -115,122 +264,56 @@ const DashboardHome = () => {
         </div>
       </div>
 
-      {/* Main Content Grid: ESG Stats & Algorithms Explanation */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* ESG Goals Progress - Left Column (3/5) */}
-        <div className="bg-surface rounded-card p-6 lg:p-8 border border-border shadow-card lg:col-span-3 space-y-6">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-base font-bold text-text">Indicadores de Diversidade e Metas ESG</h3>
-              <p className="text-xs text-muted mt-1 leading-snug">Acompanhamento de representatividade de minorias em tecnologia.</p>
+      {/* Dashboard de Aderência ESG */}
+      <DashboardEsgAderencia 
+        dados={esgData} 
+        erro={esgError} 
+        loading={esgLoading} 
+        onMetaAdicionada={fetchEsgReport}
+        isAdmin={user?.permissao_id === 1}
+      />
+
+      {/* Filtro Anti-Viés Explanation */}
+      <div className="bg-surface rounded-card p-6 lg:p-8 border border-border shadow-card flex flex-col md:flex-row justify-between gap-6 relative overflow-hidden">
+        <div className="space-y-4 max-w-2xl">
+          <div className="flex items-center gap-3">
+            <div className="p-2 badge-primary rounded-xl">
+              <ShieldCheck size={18} />
             </div>
-            <div className="text-right shrink-0">
-              <span className="text-[10px] font-bold text-muted block uppercase tracking-wider">Status Geral</span>
-              <span className="text-xs font-extrabold text-primary mt-0.5 block">{stats.currentProgress}% de {stats.esgTarget}%</span>
-            </div>
+            <h4 className="text-sm font-bold text-text">Filtro Anti-Viés Inclusi.va</h4>
           </div>
 
-          {/* Progress Bars */}
-          <div className="space-y-5">
-            {/* Mulheres */}
-            <div>
-              <div className="flex justify-between text-xs mb-1.5 font-semibold">
-                <span className="text-text">Mulheres</span>
-                <span className="text-muted">{stats.mulheres}% <span className="text-muted/60">/ Meta: 50%</span></span>
-              </div>
-              <div className="w-full h-2.5 bg-bg border border-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${stats.mulheres}%` }}></div>
-              </div>
-            </div>
+          <p className="text-muted text-xs leading-relaxed font-medium">
+            O motor de matching do Inclusi.va foi construído para blindar a triagem de candidatos de vieses inconscientes de forma inteligente.
+          </p>
 
-            {/* Negros */}
-            <div>
-              <div className="flex justify-between text-xs mb-1.5 font-semibold">
-                <span className="text-text">Negros / Pardos</span>
-                <span className="text-muted">{stats.negros}% <span className="text-muted/60">/ Meta: 45%</span></span>
-              </div>
-              <div className="w-full h-2.5 bg-bg border border-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${stats.negros}%` }}></div>
-              </div>
-            </div>
-
-            {/* LGBTQIA+ */}
-            <div>
-              <div className="flex justify-between text-xs mb-1.5 font-semibold">
-                <span className="text-text">LGBTQIA+</span>
-                <span className="text-muted">{stats.lgbt}% <span className="text-muted/60">/ Meta: 20%</span></span>
-              </div>
-              <div className="w-full h-2.5 bg-bg border border-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${stats.lgbt}%` }}></div>
-              </div>
-            </div>
-
-            {/* Baixa Renda */}
-            <div>
-              <div className="flex justify-between text-xs mb-1.5 font-semibold">
-                <span className="text-text">Ensino Público / Baixa Renda</span>
-                <span className="text-muted">{stats.baixaRenda}% <span className="text-muted/60">/ Meta: 30%</span></span>
-              </div>
-              <div className="w-full h-2.5 bg-bg border border-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${stats.baixaRenda}%` }}></div>
-              </div>
-            </div>
-
-            {/* PCD */}
-            <div>
-              <div className="flex justify-between text-xs mb-1.5 font-semibold">
-                <span className="text-text">Pessoas com Deficiência (PCD)</span>
-                <span className="text-muted">{stats.pcd}% <span className="text-muted/60">/ Meta: 10%</span></span>
-              </div>
-              <div className="w-full h-2.5 bg-bg border border-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000" style={{ width: `${stats.pcd}%` }}></div>
-              </div>
-            </div>
-          </div>
+          <ul className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-text pt-2">
+            <li className="flex items-start gap-2.5 bg-bg/50 border border-border/40 p-3.5 rounded-xl">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
+              <p className="leading-relaxed">
+                <strong className="font-bold text-text block mb-0.5">Explicabilidade Algorítmica:</strong> Entenda o motivo de cada score com base nas competências e fit real.
+              </p>
+            </li>
+            <li className="flex items-start gap-2.5 bg-bg/50 border border-border/40 p-3.5 rounded-xl">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
+              <p className="leading-relaxed">
+                <strong className="font-bold text-text block mb-0.5">Blindagem de Dados:</strong> Análise ética que separa marcadores de diversidade de avaliações de mérito técnico.
+              </p>
+            </li>
+            <li className="flex items-start gap-2.5 bg-bg/50 border border-border/40 p-3.5 rounded-xl">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
+              <p className="leading-relaxed">
+                <strong className="font-bold text-text block mb-0.5">Apoio a Metas ESG:</strong> Recomendação ponderada inteligente que alinha a contratação às metas da empresa.
+              </p>
+            </li>
+          </ul>
         </div>
 
-        {/* Explainability / AI Engine Core values - Right Column (2/5) */}
-        <div className="bg-surface rounded-card p-6 lg:p-8 border border-border shadow-card lg:col-span-2 flex flex-col justify-between gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 badge-primary rounded-xl">
-                <ShieldCheck size={18} />
-              </div>
-              <h4 className="text-sm font-bold text-text">Filtro Anti-Viés Inclusi.va</h4>
-            </div>
-
-            <p className="text-muted text-xs leading-relaxed font-medium">
-              O motor de matching do Inclusi.va foi construído para blindar a triagem de candidatos de vieses inconscientes de forma inteligente.
-            </p>
-
-            <ul className="space-y-3.5 text-xs text-text">
-              <li className="flex items-start gap-2.5">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
-                <p className="leading-relaxed">
-                  <strong className="font-bold text-text">Explicabilidade Algorítmica:</strong> Entenda o motivo de cada score com base nas competências e fit real.
-                </p>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
-                <p className="leading-relaxed">
-                  <strong className="font-bold text-text">Blindagem de Dados:</strong> Análise ética que separa marcadores de diversidade de avaliações de mérito técnico.
-                </p>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></div>
-                <p className="leading-relaxed">
-                  <strong className="font-bold text-text">Apoio a Metas ESG:</strong> Recomendação ponderada inteligente que alinha a contratação às metas da empresa.
-                </p>
-              </li>
-            </ul>
-          </div>
-
-          <div className="p-4 bg-bg border border-border rounded-xl flex items-center gap-3">
-            <HeartHandshake size={20} className="text-primary shrink-0" />
-            <p className="text-[10px] text-muted leading-relaxed font-medium">
-              Alinhado ao programa <strong className="text-text font-bold">Hackathon Wongola</strong> para democratizar oportunidades em tecnologia.
-            </p>
-          </div>
+        <div className="p-4 bg-bg border border-border rounded-xl flex items-center gap-3 self-center md:max-w-xs shrink-0">
+          <HeartHandshake size={20} className="text-primary shrink-0" />
+          <p className="text-[10px] text-muted leading-relaxed font-medium">
+            Alinhado ao programa <strong className="text-text font-bold">Hackathon Wongola</strong> para democratizar oportunidades em tecnologia.
+          </p>
         </div>
       </div>
     </div>

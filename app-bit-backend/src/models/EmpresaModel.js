@@ -1,12 +1,12 @@
 const { conectarBanco } = require('../config/db_postgre');
 
 class EmpresaModel {
-    
+
     static async listarTodas() {
         try {
             const pool = await conectarBanco();
             const { rows } = await pool.query('SELECT * FROM Empresa');
-            return rows; 
+            return rows;
         } catch (erro) {
             console.error("Erro ao buscar empresas no banco:", erro);
             throw erro;
@@ -32,7 +32,7 @@ class EmpresaModel {
                  RETURNING *`,
                 [empresaData.nome, empresaData.razao_social, empresaData.cnpj]
             );
-            
+
             return rows[0];
         } catch (erro) {
             throw erro;
@@ -46,7 +46,7 @@ class EmpresaModel {
                 'SELECT nome, razao_social, cnpj FROM Empresa WHERE empresa_id = $1',
                 [empresa_id]
             );
-            
+
             return rows[0];
         } catch (erro) {
             console.error("Erro ao buscar empresa:", erro);

@@ -171,3 +171,100 @@
   border-color: rgba(159, 134, 236, 0.3);
 }
 
+/* Fix Tailwind hex opacity bugs globally for common opacities */
+.border-primary\/10 {
+  border-color: rgba(91, 62, 166, 0.1) !important;
+}
+:root[data-theme='dark'] .border-primary\/10 {
+  border-color: rgba(159, 134, 236, 0.1) !important;
+}
+
+.border-primary\/20 {
+  border-color: rgba(91, 62, 166, 0.2) !important;
+}
+:root[data-theme='dark'] .border-primary\/20 {
+  border-color: rgba(159, 134, 236, 0.2) !important;
+}
+
+.border-primary\/25 {
+  border-color: rgba(91, 62, 166, 0.25) !important;
+}
+:root[data-theme='dark'] .border-primary\/25 {
+  border-color: rgba(159, 134, 236, 0.25) !important;
+}
+
+.border-primary\/30 {
+  border-color: rgba(91, 62, 166, 0.3) !important;
+}
+:root[data-theme='dark'] .border-primary\/30 {
+  border-color: rgba(159, 134, 236, 0.3) !important;
+}
+
+.border-primary\/40 {
+  border-color: rgba(91, 62, 166, 0.4) !important;
+}
+:root[data-theme='dark'] .border-primary\/40 {
+  border-color: rgba(159, 134, 236, 0.4) !important;
+}
+
+.hover\:border-primary\/20:hover {
+  border-color: rgba(91, 62, 166, 0.2) !important;
+}
+:root[data-theme='dark'] .hover\:border-primary\/20:hover {
+  border-color: rgba(159, 134, 236, 0.2) !important;
+}
+
+.hover\:border-primary\/25:hover {
+  border-color: rgba(91, 62, 166, 0.25) !important;
+}
+:root[data-theme='dark'] .hover\:border-primary\/25:hover {
+  border-color: rgba(159, 134, 236, 0.25) !important;
+}
+
+.hover\:border-primary\/30:hover {
+  border-color: rgba(91, 62, 166, 0.3) !important;
+}
+:root[data-theme='dark'] .hover\:border-primary\/30:hover {
+  border-color: rgba(159, 134, 236, 0.3) !important;
+}
+
+.hover\:border-primary\/40:hover {
+  border-color: rgba(91, 62, 166, 0.4) !important;
+}
+:root[data-theme='dark'] .hover\:border-primary\/40:hover {
+  border-color: rgba(159, 134, 236, 0.4) !important;
+}
+
+.group:hover .group-hover\:border-primary\/20 {
+  border-color: rgba(91, 62, 166, 0.2) !important;
+}
+:root[data-theme='dark'] .group:hover .group-hover\:border-primary\/20 {
+  border-color: rgba(159, 134, 236, 0.2) !important;
+}
+
+.group:hover .group-hover\:border-primary\/40 {
+  border-color: rgba(91, 62, 166, 0.4) !important;
+}
+:root[data-theme='dark'] .group:hover .group-hover\:border-primary\/40 {
+  border-color: rgba(159, 134, 236, 0.4) !important;
+}
+
+.bg-primary\/10 {
+  background-color: rgba(91, 62, 166, 0.1) !important;
+}
+:root[data-theme='dark'] .bg-primary\/10 {
+  background-color: rgba(159, 134, 236, 0.1) !important;
+}
+
+.bg-primary\/5 {
+  background-color: rgba(91, 62, 166, 0.05) !important;
+}
+:root[data-theme='dark'] .bg-primary\/5 {
+  background-color: rgba(159, 134, 236, 0.05) !important;
+}
+
+/* Shimmer animation for loading progress bar */
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}

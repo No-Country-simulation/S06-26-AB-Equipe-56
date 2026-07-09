@@ -14,13 +14,43 @@ import {
   BookmarkCheck
 } from 'lucide-react';
 
+const MOCK_TO_DB_MAP = {
+  'c1': 131, // Mariana Costa Silveira
+  'c2': 27,  // Carlos Eduardo Souza (Cadu)
+  'c3': 51,  // Aline Souza de Jesus
+  'c4': 219, // Gabriela Mendes Santos
+  'c5': 126, // Youssef Al-Fayed
+  'c6': 60,  // Thales Pinheiro Ribeiro
+  'c7': 104, // Beatriz Vasconcelos Luna
+  'c8': 8,   // Lucca Viana Ramos
+  'c9': 170, // Tiago Mendes Neto (PCD / LGBTQIA+)
+  'c10': 295, // Amanda Rocha Lima (Negra / Baixa Renda)
+  'c11': 189, // Jefferson Santos Cruz (Negro / PCD)
+  'c12': 277, // Letícia Pereira Góes (Mulher / Baixa Renda / LGBTQIA+)
+  'c13': 174, // Bruno Carvalho Mello (50+)
+  'c14': 110, // Clara Martins Neves (Mulher / Baixa Renda / Primeiro Emprego)
+  'c15': 197, // Rafael Augusto Silva (PCD)
+  'c16': 221  // Samuel de Oliveira (Negro)
+};
+
+const getInitials = (name) => {
+  if (!name) return 'CN';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 const MatchingView = () => {
   const { id } = useParams();
 
   const [vaga, setVaga] = useState(null);
   const [candidatos, setCandidatos] = useState([]);
+  const [candidaturas, setCandidaturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hiringId, setHiringId] = useState(null);
   
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,6 +69,11 @@ const MatchingView = () => {
         // Fetch candidates for this job
         const matchCandidatos = getCandidatesForJob(vagaDados.cargo_id, vagaDados.titulo);
         setCandidatos(matchCandidatos);
+
+        // Fetch existing candidacies for this job
+        const candidaturasRes = await api.get('/candidaturas');
+        const parsedVagaId = parseInt(id, 10);
+        setCandidaturas(candidaturasRes.data.filter(c => c.vaga_id === parsedVagaId));
       } catch (err) {
         console.error(err);
         setError('Erro ao carregar detalhes da vaga. Certifique-se de que a vaga pertence à sua empresa.');
@@ -53,6 +88,61 @@ const MatchingView = () => {
   const handleOpenExplicabilidade = (candidate) => {
     setSelectedCandidate(candidate);
     setIsModalOpen(true);
+  };
+
+  const getStatusOptionValue = (dbStatus) => {
+    const s = (dbStatus || '').toLowerCase();
+    if (s.includes('analise') || s.includes('triagem') || s.includes('pendente')) return 'Triagem';
+    if (s.includes('teste')) return 'Teste';
+    if (s.includes('entrevista')) return 'Entrevista';
+    if (s.includes('contratado') || s.includes('aprovado')) return 'Contratado';
+    return 'Triagem';
+  };
+
+  const handleAtualizarStatus = async (candidato, novoStatus) => {
+    const dbCandidatoId = MOCK_TO_DB_MAP[candidato.id];
+    if (!dbCandidatoId) {
+      alert('Candidato não mapeado no banco de dados.');
+      return;
+    }
+
+    try {
+      setHiringId(candidato.id);
+      
+      // 1. Criar a candidatura (ou obter existente com status padrão)
+      const resCandidatura = await api.post('/candidaturas', {
+        vaga_id: parseInt(id, 10),
+        curriculo_id: dbCandidatoId,
+        status: novoStatus,
+        pretencao_salarial: 6000
+      });
+      
+      const candidaturaId = resCandidatura.data.candidatura_id;
+
+      // 2. Se a candidatura já existia mas com status diferente, atualiza
+      const currentDBStatus = getStatusOptionValue(resCandidatura.data.status);
+      if (currentDBStatus !== novoStatus) {
+        await api.put(`/candidaturas/${candidaturaId}/status`, {
+          status: novoStatus
+        });
+      }
+
+      // 3. Atualizar candidaturas localmente
+      const updatedRes = await api.get('/candidaturas');
+      const parsedVagaId = parseInt(id, 10);
+      setCandidaturas(updatedRes.data.filter(c => c.vaga_id === parsedVagaId));
+
+      if (novoStatus === 'Contratado') {
+        alert(`Candidato ${candidato.nome} contratado com sucesso! As metas ESG da empresa foram atualizadas.`);
+      } else {
+        alert(`Candidato ${candidato.nome} movido para a etapa "${novoStatus}".`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao transicionar etapa do candidato.');
+    } finally {
+      setHiringId(null);
+    }
   };
 
   const getMarkerColor = (tipo) => {
@@ -130,6 +220,12 @@ const MatchingView = () => {
               <h2 className="text-lg font-bold text-text leading-snug">
                 {vaga.titulo}
               </h2>
+
+              {vaga.recrutador_responsavel && (
+                <div className="text-[10px] text-muted font-medium">
+                  Responsável: <span className="font-bold text-text">{vaga.recrutador_responsavel}</span>
+                </div>
+              )}
               
               {/* Job Tags */}
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -176,11 +272,16 @@ const MatchingView = () => {
         {/* Shortlist - Right Side (3/5) */}
         <div className="lg:col-span-3 space-y-6">
           <div>
-            <h3 className="text-base font-bold text-text flex items-center gap-2">
+            <h3 className="text-base font-bold text-text flex items-center flex-wrap gap-2">
               <span>Shortlist Recomendada pela IA</span>
               <span className="text-xs font-bold px-2.5 py-0.5 badge-primary rounded-full">
-                {candidatos.length} Candidatos
+                {candidatos.length} Sugeridos
               </span>
+              {candidaturas.length > 0 && (
+                <span className="text-xs font-bold px-2.5 py-0.5 bg-bg border border-border text-muted rounded-full">
+                  {candidaturas.length} no processo
+                </span>
+              )}
             </h3>
             <p className="text-muted text-xs mt-1">
               Ordenados pelo score de compatibilidade técnica e alinhamento de indicadores ESG.
@@ -188,54 +289,83 @@ const MatchingView = () => {
           </div>
 
           <div className="space-y-4">
-            {candidatos.map((candidato) => (
-              <div 
-                key={candidato.id} 
-                className="bg-surface rounded-card p-5 border border-border shadow-card hover:border-primary/25 transition-all flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between"
-              >
-                {/* Profile info */}
-                <div className="flex gap-4 items-start sm:items-center">
-                  <img 
-                    src={candidato.foto} 
-                    alt={candidato.nome} 
-                    className="w-12 h-12 rounded-xl object-cover border border-border shrink-0"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120&h=120"; // Fallback
-                    }}
-                  />
-                  <div className="space-y-1.5">
-                    <div className="flex items-center flex-wrap gap-2">
-                      <h4 className="text-xs font-bold text-text">{candidato.nome}</h4>
-                      <span className={`text-[9px] font-mono font-bold px-2 py-0.5 border rounded-full ${getScoreColor(candidato.score)}`}>
-                        {candidato.score}% Match
-                      </span>
+            {candidatos.map((candidato) => {
+              const dbCandidatoId = MOCK_TO_DB_MAP[candidato.id];
+              const candAssociation = candidaturas.find(c => c.curriculo_id === dbCandidatoId);
+
+              return (
+                <div 
+                  key={candidato.id} 
+                  className="bg-surface rounded-card p-5 border border-border shadow-card hover:border-primary/25 transition-all flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between"
+                >
+                  {/* Profile info */}
+                  <div className="flex gap-4 items-start sm:items-center">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/25 text-primary flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                      {getInitials(candidato.nome)}
                     </div>
-                    <p className="text-xs text-muted font-medium">{candidato.resumo}</p>
-                    
-                    {/* Diversity Badges */}
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {candidato.marcadores.map((mark) => (
-                        <span 
-                          key={mark.label} 
-                          className={`text-[9px] font-bold px-2 py-0.5 border rounded-md uppercase tracking-wider ${getMarkerColor(mark.tipo)}`}
-                        >
-                          {mark.label}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <h4 className="text-xs font-bold text-text">{candidato.nome}</h4>
+                        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 border rounded-full ${getScoreColor(candidato.score)}`}>
+                          {candidato.score}% Match
                         </span>
-                      ))}
+                      </div>
+                      <p className="text-xs text-muted font-medium">{candidato.resumo}</p>
+                      
+                      {/* Diversity Badges */}
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {candidato.marcadores.map((mark) => (
+                          <span 
+                            key={mark.label} 
+                            className={`text-[9px] font-bold px-2 py-0.5 border rounded-md uppercase tracking-wider ${getMarkerColor(mark.tipo)}`}
+                          >
+                            {mark.label}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <button
-                  onClick={() => handleOpenExplicabilidade(candidato)}
-                  className="w-full sm:w-auto px-4 py-2 bg-bg hover:bg-primary border border-border hover:border-primary rounded-xl text-xs text-text hover:text-white font-bold transition-all cursor-pointer text-center shrink-0"
-                >
-                  Explicar Match
-                </button>
-              </div>
-            ))}
+                  {/* Actions */}
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto shrink-0 mt-3 sm:mt-0 items-center">
+                    <button
+                      onClick={() => handleOpenExplicabilidade(candidato)}
+                      className="w-full sm:w-auto px-4 py-2 bg-bg hover:bg-surface-hover border border-border rounded-xl text-xs text-text font-bold transition-all cursor-pointer text-center"
+                    >
+                      Explicar Match
+                    </button>
+                    {candAssociation ? (
+                      <div className="flex items-center gap-1.5 bg-bg border border-border rounded-xl px-3 py-1.5 focus-within:border-primary transition-all w-full sm:w-auto">
+                        <span className="text-[10px] text-muted font-bold select-none uppercase tracking-wider shrink-0">Etapa:</span>
+                        <select
+                          value={getStatusOptionValue(candAssociation.status)}
+                          disabled={hiringId !== null}
+                          onChange={(e) => handleAtualizarStatus(candidato, e.target.value)}
+                          className="bg-transparent text-xs text-text font-bold outline-none border-none cursor-pointer pr-1"
+                        >
+                          <option value="Triagem" className="bg-surface text-text">Triagem Inicial</option>
+                          <option value="Teste" className="bg-surface text-text">Teste Técnico</option>
+                          <option value="Entrevista" className="bg-surface text-text">Entrevista Cultural</option>
+                          <option value="Contratado" className="bg-surface text-text">Contratado</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleAtualizarStatus(candidato, 'Triagem')}
+                        disabled={hiringId !== null}
+                        className="w-full sm:w-auto px-4 py-2 bg-primary hover:bg-primary-strong text-white rounded-xl text-xs font-bold transition-all cursor-pointer text-center flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      >
+                        {hiringId === candidato.id ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <span>Mover para Triagem</span>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -264,11 +394,9 @@ const MatchingView = () => {
             <div className="p-6 space-y-6">
               {/* Candidate Info Header */}
               <div className="flex gap-4 items-center">
-                <img 
-                  src={selectedCandidate.foto} 
-                  alt={selectedCandidate.nome}
-                  className="w-14 h-14 rounded-xl object-cover border border-border"
-                />
+                <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/25 text-primary flex items-center justify-center font-bold text-sm shrink-0 select-none">
+                  {getInitials(selectedCandidate.nome)}
+                </div>
                 <div>
                   <h4 className="text-sm font-bold text-text leading-snug">{selectedCandidate.nome}</h4>
                   <p className="text-xs text-muted font-medium">{selectedCandidate.cargo}</p>

@@ -29,9 +29,6 @@
     "zod": "^4.4.3"
   },
   "allowScripts": {
-    "bcrypt@6.0.0": true,
-    "msnodesqlv8@5.2.0": true,
-    "@google/genai@2.10.0": true,
-    "protobufjs@7.6.5": true
+    "bcrypt@6.0.0": true
   }
 }

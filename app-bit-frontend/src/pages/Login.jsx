@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [email, setEmail] = useState('carlos.silva@nexus.com.br');
+  const [senha, setSenha] = useState('123456');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -165,8 +165,8 @@ const Login = () => {
               Ambiente de Avaliação. Use credenciais homologadas:
             </p>
             <div className="mt-2 text-[10px] font-mono text-white/80 bg-[#0F0A1E]/60 p-3 rounded-lg border border-white/10 inline-block text-left">
-              <div><span className="text-[#7B5EC4] font-bold">Admin:</span> isabelle@empresa.com</div>
-              <div><span className="text-[#7B5EC4] font-bold">Senha:</span> Senha123!</div>
+              <div><span className="text-[#7B5EC4] font-bold">Admin:</span> carlos.silva@nexus.com.br</div>
+              <div><span className="text-[#7B5EC4] font-bold">Senha:</span> 123456</div>
             </div>
           </div>
         </div>
