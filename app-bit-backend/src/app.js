@@ -12,7 +12,7 @@ const recrutadorRoutes = require('./routes/recrutador.routes');
 const candidatoRoutes = require('./routes/candidato.routes');
 const conviteRoutes = require('./routes/convite.routes');
 const vagaRoutes = require('./routes/vaga.routes');
-const metasRoutes = require('./routes/metasRoutes');
+const metasRoutes = require('./routes/metas.routes');
 const trilhaRoutes = require('./routes/trilha.routes');
 const candidaturaRoutes = require('./routes/candidatura.routes');
 
