@@ -272,11 +272,16 @@ const MatchingView = () => {
         {/* Shortlist - Right Side (3/5) */}
         <div className="lg:col-span-3 space-y-6">
           <div>
-            <h3 className="text-base font-bold text-text flex items-center gap-2">
+            <h3 className="text-base font-bold text-text flex items-center flex-wrap gap-2">
               <span>Shortlist Recomendada pela IA</span>
               <span className="text-xs font-bold px-2.5 py-0.5 badge-primary rounded-full">
-                {candidatos.length} Candidatos
+                {candidatos.length} Sugeridos
               </span>
+              {candidaturas.length > 0 && (
+                <span className="text-xs font-bold px-2.5 py-0.5 bg-bg border border-border text-muted rounded-full">
+                  {candidaturas.length} no processo
+                </span>
+              )}
             </h3>
             <p className="text-muted text-xs mt-1">
               Ordenados pelo score de compatibilidade técnica e alinhamento de indicadores ESG.

@@ -263,3 +263,8 @@
   background-color: rgba(159, 134, 236, 0.05) !important;
 }
 
+/* Shimmer animation for loading progress bar */
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
