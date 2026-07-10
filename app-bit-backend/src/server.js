@@ -7,6 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json()); 
 
+const mentoriaRoutes = require('./routes/mentoria.routes');
 const cargosRoutes = require('./routes/cargos.routes');
 const senioridadesRoutes = require('./routes/senioridades.routes');
 const escolaridadeRoutes = require('./routes/escolaridade.routes');
